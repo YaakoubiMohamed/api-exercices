@@ -29,8 +29,6 @@ Créer une application Angular pour afficher les classements et les meilleurs bu
 - Architecture en composants réutilisables
 - Communication parent-enfant avec @Input/@Output
 
-### ⏱️ Temps estimé
-60 minutes
 
 ---
 
