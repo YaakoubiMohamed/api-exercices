@@ -1,0 +1,145 @@
+<div class="users-container">
+  <!-- Header -->
+  <header class="header">
+    <a routerLink="/" class="back-link">← Retour</a>
+    <h1>👥 Random Users</h1>
+    <p class="subtitle">Exercice 8 - Pagination et filtres (Étudiant)</p>
+  </header>
+  
+  <!-- Controls -->
+  <section class="controls">
+    <div class="filter-group">
+      <label>Filtrer par genre:</label>
+      <div class="btn-group">
+        <button 
+          (click)="setGenderFilter(undefined)"
+          [class.active]="!selectedGender"
+          class="filter-btn">
+          Tous
+        </button>
+        <button 
+          (click)="setGenderFilter('male')"
+          [class.active]="selectedGender === 'male'"
+          class="filter-btn">
+          👨 Hommes
+        </button>
+        <button 
+          (click)="setGenderFilter('female')"
+          [class.active]="selectedGender === 'female'"
+          class="filter-btn">
+          👩 Femmes
+        </button>
+      </div>
+    </div>
+    
+    <div class="filter-group">
+      <label>Nationalité:</label>
+      <select (change)="setNationalityFilter($event)" class="nat-select">
+        <option value="">Toutes</option>
+        @for (nat of nationalities; track nat.code) {
+          <option [value]="nat.code">{{ nat.flag }} {{ nat.name }}</option>
+        }
+      </select>
+    </div>
+    
+    <button (click)="refreshUsers()" class="refresh-btn" [disabled]="loading">
+      🔄 Actualiser
+    </button>
+  </section>
+  
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+  }
+  
+  <!-- Error State -->
+  @if (error) {
+    <div class="error">
+      <p>❌ {{ error }}</p>
+      <button (click)="refreshUsers()">Réessayer</button>
+    </div>
+  }
+  
+  <!-- Users Grid -->
+  @if (!loading && users.length > 0) {
+    <section class="results">
+      <h2>📋 {{ users.length }} utilisateurs</h2>
+      
+      <div class="users-grid">
+        @for (user of users; track user.login.uuid) {
+          <div class="user-card" [class.male]="user.gender === 'male'" [class.female]="user.gender === 'female'">
+            <div class="user-header">
+              <img 
+                [src]="user.picture.large" 
+                [alt]="user.name.first + ' ' + user.name.last"
+                class="avatar"
+              />
+              <span class="gender-badge">
+                {{ user.gender === 'male' ? '👨' : '👩' }}
+              </span>
+            </div>
+            
+            <div class="user-info">
+              <h3>{{ user.name.title }} {{ user.name.first }} {{ user.name.last }}</h3>
+              <p class="username">&#64;{{ user.login.username }}</p>
+              
+              <div class="details">
+                <p>📧 {{ user.email }}</p>
+                <p>📞 {{ user.phone }}</p>
+                <p>📍 {{ user.location.city }}, {{ user.location.country }}</p>
+                <p>🎂 {{ user.dob.age }} ans</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <!-- Load More Button -->
+      <div class="load-more">
+        <button 
+          (click)="loadMore()" 
+          class="load-more-btn"
+          [disabled]="loadingMore">
+          @if (loadingMore) {
+            Chargement...
+          } @else {
+            ➕ Charger 10 utilisateurs de plus
+          }
+        </button>
+      </div>
+    </section>
+  }
+  
+  <!-- Instructions (shown initially) -->
+  @if (!loading && users.length === 0 && !error) {
+    <div class="instructions">
+      <h2>📝 Instructions de l'exercice</h2>
+      <ol>
+        <li>Cliquez sur "Actualiser" pour charger des utilisateurs</li>
+        <li>Utilisez les filtres de genre pour filtrer les résultats</li>
+        <li>Testez le bouton "Charger plus" pour ajouter des utilisateurs</li>
+        <li>Observez l'utilisation des query parameters dans la console</li>
+      </ol>
+      
+      <h3>💡 API utilisée</h3>
+      <p>
+        <a href="https://randomuser.me/" target="_blank">RandomUser.me API</a>
+        - Pas de clé API requise!
+      </p>
+      
+      <button (click)="loadInitialUsers()" class="start-btn">
+        🚀 Démarrer
+      </button>
+    </div>
+  }
+  
+  <!-- Explanation Links -->
+  <div class="explanation-link">
+    <a routerLink="/exercice8/explanation">📚 Voir l'explication détaillée</a>
+    <span style="margin: 0 10px;">|</span>
+    <a routerLink="/exercice8/explanation-visual">🎨 Explication Visuelle Animée</a>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+.football-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #1f2937;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  color: #dc2626;
+}
+
+.error button {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.explanation-link {
+  margin-top: 2rem;
+  text-align: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.explanation-link a {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.explanation-link a:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.explanation-link .visual-link {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.explanation-link .visual-link:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3f8b 100%);
+}
