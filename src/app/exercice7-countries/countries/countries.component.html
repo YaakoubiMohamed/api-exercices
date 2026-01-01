@@ -1,0 +1,130 @@
+<div class="countries-container">
+  <!-- Header -->
+  <header class="header">
+    <a routerLink="/" class="back-link">← Retour</a>
+    <h1>🌍 Country Explorer</h1>
+    <p class="subtitle">Exercice 7 - Recherche de pays (Étudiant)</p>
+  </header>
+  
+  <!-- Search Section -->
+  <section class="search-section">
+    <div class="search-box">
+      <input 
+        type="text"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        (keyup.enter)="search()"
+        placeholder="Entrez le nom d'un pays..."
+        class="search-input"
+      />
+      <button (click)="search()" class="search-btn" [disabled]="loading()">
+        🔍 Rechercher
+      </button>
+    </div>
+    
+    <!-- Region Filter -->
+    <div class="region-filter">
+      <label>Filtrer par région:</label>
+      <select (change)="filterByRegion($event)" class="region-select">
+        <option value="">Toutes les régions</option>
+        @for (region of regions; track region) {
+          <option [value]="region">{{ region }}</option>
+        }
+      </select>
+    </div>
+  </section>
+  
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Recherche en cours...</p>
+    </div>
+  }
+  
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error">
+      <p>❌ {{ error() }}</p>
+    </div>
+  }
+  
+  <!-- Results -->
+  @if (!loading() && countries().length > 0) {
+    <section class="results">
+      <h2>📋 Résultats ({{ countries().length }} pays)</h2>
+      <div class="countries-grid">
+        @for (country of countries(); track country.name.common) {
+          <div class="country-card">
+            <img 
+              [src]="country.flags.svg" 
+              [alt]="country.flags.alt || country.name.common + ' flag'"
+              class="flag"
+            />
+            <div class="country-info">
+              <h3>{{ country.name.common }}</h3>
+              <p class="official">{{ country.name.official }}</p>
+              
+              <div class="details">
+                @if (country.capital && country.capital.length > 0) {
+                  <p><strong>🏛️ Capitale:</strong> {{ country.capital[0] }}</p>
+                }
+                <p><strong>👥 Population:</strong> {{ country.population | number }}</p>
+                <p><strong>📍 Région:</strong> {{ country.region }}</p>
+                @if (country.subregion) {
+                  <p><strong>🗺️ Sous-région:</strong> {{ country.subregion }}</p>
+                }
+              </div>
+              
+              @if (country.languages) {
+                <div class="languages">
+                  <strong>🗣️ Langues:</strong>
+                  <span class="language-tags">
+                    @for (lang of getLanguages(country); track lang) {
+                      <span class="tag">{{ lang }}</span>
+                    }
+                  </span>
+                </div>
+              }
+              
+              <a [href]="country.maps.googleMaps" target="_blank" class="map-link">
+                🗺️ Voir sur Google Maps
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+  
+  <!-- No Results -->
+  @if (!loading() && !error() && countries().length === 0 && hasSearched()) {
+    <div class="no-results">
+      <p>🔍 Aucun pays trouvé pour "{{ lastSearch() }}"</p>
+    </div>
+  }
+  
+  <!-- Instructions -->
+  @if (!hasSearched()) {
+    <div class="instructions">
+      <h2>📝 Instructions de l'exercice</h2>
+      <ol>
+        <li>Recherchez un pays par son nom (ex: "France", "Japan")</li>
+        <li>Explorez les informations affichées</li>
+        <li>Testez le filtre par région</li>
+      </ol>
+      
+      <h3>💡 API utilisée</h3>
+      <p>
+        <a href="https://restcountries.com/" target="_blank">REST Countries API</a>
+        - Pas de clé API requise!
+      </p>
+    </div>
+  }
+  
+  <!-- Explanation Links -->
+  <div class="explanation-link">
+    <a routerLink="/countries/explanation">📚 Explication Détaillée</a>
+    <a routerLink="/countries/visual" class="visual-link">🎨 Explication Visuelle Animée</a>
+  </div>
+</div>

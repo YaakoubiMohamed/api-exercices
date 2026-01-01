@@ -1,0 +1,363 @@
+<div class="explanation-container">
+  <header class="explanation-header">
+    <h1>⚽ Exercice 5 : Football Data - Explication Visuelle</h1>
+    <a routerLink="/football" class="back-link">← Retour à l'exercice</a>
+  </header>
+
+  <!-- Step Navigator -->
+  <nav class="step-navigator">
+    @for (step of steps; track step.id) {
+      <button 
+        class="step-btn"
+        [class.active]="currentStep() === step.id"
+        (click)="goToStep(step.id)">
+        {{ step.icon }} {{ step.title }}
+      </button>
+    }
+  </nav>
+
+  <!-- Content Area -->
+  <div class="content-area">
+    
+    <!-- Step 1: HTTP Flow -->
+    @if (currentStep() === 1) {
+      <section class="step-content fade-in">
+        <h2>🌐 Flux de Requête HTTP avec Authentification</h2>
+        
+        <div class="visual-diagram">
+          <svg viewBox="0 0 900 500" class="http-flow">
+            <!-- Component -->
+            <g class="flow-box animate-scale" style="animation-delay: 0.1s;">
+              <rect x="50" y="50" width="180" height="80" rx="10" fill="#4CAF50" class="interactive-element"/>
+              <text x="140" y="85" text-anchor="middle" fill="white" font-weight="bold">Component</text>
+              <text x="140" y="105" text-anchor="middle" fill="white" font-size="12">football.component</text>
+              <title>Le composant initie la demande de données</title>
+            </g>
+            
+            <!-- Arrow 1 -->
+            <g class="arrow animate-flow">
+              <line x1="230" y1="90" x2="320" y2="90" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead)"/>
+              <text x="275" y="80" text-anchor="middle" fill="#333" font-size="12">getStandings()</text>
+            </g>
+            
+            <!-- Service -->
+            <g class="flow-box animate-scale" style="animation-delay: 0.3s;">
+              <rect x="320" y="50" width="180" height="80" rx="10" fill="#2196F3" class="interactive-element"/>
+              <text x="410" y="85" text-anchor="middle" fill="white" font-weight="bold">Service</text>
+              <text x="410" y="105" text-anchor="middle" fill="white" font-size="11">FootballService</text>
+              <title>Le service gère la communication HTTP</title>
+            </g>
+            
+            <!-- Auth Header -->
+            <g class="auth-box animate-float" style="animation-delay: 0.5s;">
+              <rect x="280" y="150" width="260" height="60" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="2" class="interactive-element"/>
+              <text x="410" y="175" text-anchor="middle" fill="#E65100" font-weight="bold" font-size="12">🔑 Headers</text>
+              <text x="410" y="195" text-anchor="middle" fill="#333" font-size="11">X-Auth-Token: YOUR_API_KEY</text>
+              <title>Le token d'authentification est ajouté aux headers</title>
+            </g>
+            
+            <!-- Arrow 2 -->
+            <g class="arrow animate-flow">
+              <line x1="500" y1="90" x2="590" y2="90" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead)"/>
+              <text x="545" y="80" text-anchor="middle" fill="#333" font-size="12">HTTP GET</text>
+            </g>
+            
+            <!-- API -->
+            <g class="flow-box animate-scale" style="animation-delay: 0.7s;">
+              <rect x="590" y="50" width="180" height="80" rx="10" fill="#FF5722" class="interactive-element"/>
+              <text x="680" y="80" text-anchor="middle" fill="white" font-weight="bold">API</text>
+              <text x="680" y="100" text-anchor="middle" fill="white" font-size="10">football-data.org</text>
+              <title>L'API externe reçoit la requête</title>
+            </g>
+            
+            <!-- Data Packet Request -->
+            <circle r="5" fill="#2196F3" class="data-packet">
+              <animateMotion path="M 230 90 L 320 90 L 500 90 L 590 90" dur="3s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Response Arrow -->
+            <g class="arrow animate-flow">
+              <line x1="680" y1="130" x2="680" y2="240" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead-green)"/>
+              <text x="700" y="185" fill="#4CAF50" font-size="12" font-weight="bold">JSON Response</text>
+            </g>
+            
+            <!-- Observable -->
+            <g class="flow-box animate-scale" style="animation-delay: 0.9s;">
+              <rect x="590" y="240" width="180" height="80" rx="10" fill="#9C27B0" class="interactive-element"/>
+              <text x="680" y="270" text-anchor="middle" fill="white" font-weight="bold">Observable</text>
+              <text x="680" y="290" text-anchor="middle" fill="white" font-size="11">Flux asynchrone</text>
+              <title>La réponse est enveloppée dans un Observable</title>
+            </g>
+            
+            <!-- Arrow back -->
+            <g class="arrow animate-flow">
+              <line x1="590" y1="280" x2="230" y2="280" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead-purple)"/>
+              <text x="410" y="270" text-anchor="middle" fill="#9C27B0" font-size="12">subscribe()</text>
+            </g>
+            
+            <!-- Data Packet Response -->
+            <circle r="5" fill="#4CAF50" class="data-packet-return">
+              <animateMotion path="M 680 130 L 680 240 L 590 280 L 230 280" dur="3s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Updated Component -->
+            <g class="flow-box animate-scale" style="animation-delay: 1.1s;">
+              <rect x="50" y="240" width="180" height="80" rx="10" fill="#4CAF50" stroke="#FFD700" stroke-width="4" class="interactive-element"/>
+              <text x="140" y="270" text-anchor="middle" fill="white" font-weight="bold">Component</text>
+              <text x="140" y="290" text-anchor="middle" fill="white" font-size="11">✅ Données reçues</text>
+              <text x="140" y="305" text-anchor="middle" fill="white" font-size="10">standings.set(data)</text>
+              <title>Le composant met à jour l'interface avec les données</title>
+            </g>
+            
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#333" />
+              </marker>
+              <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#4CAF50" />
+              </marker>
+              <marker id="arrowhead-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#9C27B0" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="info-box">
+          <h3>🔑 Points Clés</h3>
+          <ul>
+            <li><strong>HttpHeaders</strong> : Ajouter l'authentification API</li>
+            <li><strong>Observable</strong> : Flux de données asynchrone</li>
+            <li><strong>subscribe()</strong> : Récupérer les données</li>
+            <li><strong>properties</strong> : Gestion d'état du composant</li>
+          </ul>
+        </div>
+      </section>
+    }
+
+    <!-- Step 2: Service with Authentication -->
+    @if (currentStep() === 2) {
+      <section class="step-content fade-in">
+        <h2>🔐 Service avec Authentification</h2>
+        
+        <div class="code-explanation">
+
+          <div class="code-line" (click)="toggleExplanation(2)" [class.active]="activeExplanation() === 2">
+            <div class="line-number">2</div>
+            <code>import &#123; HttpClient, HttpHeaders &#125; from '@angular/common/http';</code>
+            @if (activeExplanation() === 2) {
+              <div class="explanation-popup">
+                <strong>HttpClient</strong> : Service pour les requêtes HTTP<br>
+                <strong>HttpHeaders</strong> : Configuration des en-têtes (auth, content-type)
+              </div>
+            }
+          </div>
+
+          <div class="code-line" (click)="toggleExplanation(3)" [class.active]="activeExplanation() === 3">
+            <div class="line-number">4</div>
+            <code>constructor(private readonly http: HttpClient) &#123;&#125;</code>
+            @if (activeExplanation() === 3) {
+              <div class="explanation-popup">
+                <strong>private</strong> : Accessible uniquement dans cette classe<br>
+                <strong>readonly</strong> : Ne peut pas être réassigné<br>
+                <strong>constructor</strong> : Injection via constructeur
+              </div>
+            }
+          </div>
+
+          <div class="code-line" (click)="toggleExplanation(4)" [class.active]="activeExplanation() === 4">
+            <div class="line-number">5</div>
+            <code>private readonly apiKey = 'YOUR_API_KEY';</code>
+            @if (activeExplanation() === 4) {
+              <div class="explanation-popup">
+                Stocke la clé API. En production, utiliser les <strong>environment variables</strong>
+                pour la sécurité.
+              </div>
+            }
+          </div>
+
+          <div class="code-line" (click)="toggleExplanation(5)" [class.active]="activeExplanation() === 5">
+            <div class="line-number">8</div>
+            <code>const headers = new HttpHeaders(&#123;</code>
+            @if (activeExplanation() === 5) {
+              <div class="explanation-popup">
+                <strong>HttpHeaders</strong> : Crée un objet d'en-têtes HTTP pour l'authentification.
+              </div>
+            }
+          </div>
+
+          <div class="code-line" (click)="toggleExplanation(6)" [class.active]="activeExplanation() === 6">
+            <div class="line-number">9</div>
+            <code>  'X-Auth-Token': this.apiKey</code>
+            @if (activeExplanation() === 6) {
+              <div class="explanation-popup">
+                <strong>X-Auth-Token</strong> : Header spécifique à l'API Football Data.
+                Chaque API a son propre format d'authentification.
+              </div>
+            }
+          </div>
+
+          <div class="code-line" (click)="toggleExplanation(7)" [class.active]="activeExplanation() === 7">
+            <div class="line-number">12</div>
+            <code>return this.http.get&lt;Response&gt;(url, &#123; headers &#125;);</code>
+            @if (activeExplanation() === 7) {
+              <div class="explanation-popup">
+                <strong>get&lt;Response&gt;()</strong> : Requête GET typée<br>
+                <strong>&#123; headers &#125;</strong> : Passe les headers à la requête<br>
+                Retourne un <strong>Observable&lt;Response&gt;</strong>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="code-block">
+          <h4>Code Complet du Service</h4>
+          <pre ngNonBindable><code>export class FootballService &#123;
+  private readonly apiKey = 'YOUR_API_KEY';
+  private readonly baseUrl = 'https://api.football-data.org/v4';
+
+  constructor(private readonly http: HttpClient) &#123;&#125;
+
+  getStandings(competitionId: number): Observable&lt;StandingsResponse&gt; &#123;
+    const headers = new HttpHeaders(&#123;
+      'X-Auth-Token': this.apiKey
+    &#125;);
+    
+    const url = &#96;$&#123;this.baseUrl&#125;/competitions/$&#123;competitionId&#125;/standings&#96;;
+    return this.http.get&lt;StandingsResponse&gt;(url, &#123; headers &#125;);
+  &#125;
+&#125;</code></pre>
+        </div>
+
+        <div class="info-box">
+          <h3>💡 Astuce</h3>
+          <p>Cliquez sur chaque ligne pour voir l'explication détaillée !</p>
+        </div>
+      </section>
+    }
+
+    <!-- Step 3: Component with Properties -->
+    @if (currentStep() === 3) {
+      <section class="step-content fade-in">
+        <h2>⚡ Component avec Propriétés</h2>
+        
+        <div class="visual-diagram">
+          <svg viewBox="0 0 800 450" class="component-diagram">
+            <!-- Service Injection -->
+            <g class="box animate-scale" style="animation-delay: 0.1s;">
+              <rect x="50" y="50" width="200" height="70" rx="10" fill="#2196F3" class="interactive-element"/>
+              <text x="150" y="80" text-anchor="middle" fill="white" font-weight="bold">Service Injection</text>
+              <text x="150" y="100" text-anchor="middle" fill="white" font-size="11">constructor(service)</text>
+              <title>Injection du service dans le constructeur</title>
+            </g>
+            
+            <!-- Property Declaration -->
+            <g class="box animate-scale" style="animation-delay: 0.3s;">
+              <rect x="300" y="50" width="200" height="70" rx="10" fill="#9C27B0" class="interactive-element"/>
+              <text x="400" y="80" text-anchor="middle" fill="white" font-weight="bold">Property Declaration</text>
+              <text x="400" y="100" text-anchor="middle" fill="white" font-size="11">standings: Standing[] = []</text>
+              <title>Déclaration de la propriété pour stocker les données</title>
+            </g>
+            
+            <!-- Subscribe -->
+            <g class="box animate-scale" style="animation-delay: 0.5s;">
+              <rect x="550" y="50" width="200" height="70" rx="10" fill="#FF9800" class="interactive-element"/>
+              <text x="650" y="80" text-anchor="middle" fill="white" font-weight="bold">Subscribe</text>
+              <text x="650" y="100" text-anchor="middle" fill="white" font-size="11">.subscribe(data =&gt; ...)</text>
+              <title>Souscription à l'observable pour recevoir les données</title>
+            </g>
+            
+            <!-- Arrow Flow -->
+            <line x1="150" y1="120" x2="150" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
+            <line x1="400" y1="120" x2="400" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
+            <line x1="650" y1="120" x2="650" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
+            
+            <!-- Load Method -->
+            <g class="method-box animate-scale" style="animation-delay: 0.7s;">
+              <rect x="150" y="180" width="500" height="100" rx="10" fill="#E8F5E9" stroke="#4CAF50" stroke-width="3" class="interactive-element"/>
+              <text x="400" y="210" text-anchor="middle" fill="#2E7D32" font-weight="bold" font-size="15">loadStandings() Method</text>
+              <text x="170" y="240" fill="#333" font-size="13" font-family="monospace">this.service.getStandings(id)</text>
+              <text x="180" y="260" fill="#333" font-size="13" font-family="monospace">.subscribe(response =&gt; &#123;</text>
+              <text x="200" y="275" fill="#333" font-size="13" font-family="monospace">this.standings.set(response.standings);</text>
+              <title>Méthode qui orchestre la récupération des données</title>
+            </g>
+            
+            <!-- Arrow to Template -->
+            <line x1="400" y1="280" x2="400" y2="340" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-purple-down)" class="animate-flow"/>
+            <text x="420" y="310" fill="#9C27B0" font-weight="bold">Auto Update</text>
+            
+            <!-- Data Packet -->
+            <circle r="5" fill="#9C27B0" class="data-packet">
+              <animateMotion path="M 400 280 L 400 340" dur="1s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Template -->
+            <g class="template-box animate-scale" style="animation-delay: 0.9s;">
+              <rect x="150" y="340" width="500" height="80" rx="10" fill="#F3E5F5" stroke="#9C27B0" stroke-width="3" class="interactive-element"/>
+              <text x="400" y="370" text-anchor="middle" fill="#7B1FA2" font-weight="bold">Template (Vue)</text>
+              <text x="400" y="395" text-anchor="middle" fill="#333" font-size="12">&#64;for (team of standings(); track team.position)</text>
+              <title>Le template se met à jour automatiquement</title>
+            </g>
+            
+            <defs>
+              <marker id="arrow-down" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#4CAF50" />
+              </marker>
+              <marker id="arrow-purple-down" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#9C27B0" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="code-block">
+          <h4>Code du Component</h4>
+          <pre ngNonBindable><code>export class FootballComponent &#123;
+  
+  constructor(private readonly footballService: FootballService) &#123;&#125;
+  
+  standings: Standing[] = [];
+  loading: boolean = false;
+
+  loadStandings(competitionId: number) &#123;
+    this.loading = true;
+    
+    this.footballService.getStandings(competitionId)
+      .subscribe(&#123;
+        next: (response) => &#123;
+          this.standings = response.standings&#91;0&#93;.table;
+          this.loading = false;
+        &#125;,
+        error: (err) => &#123;
+          console.error(err);
+          this.loading = false;
+        &#125;
+      &#125;);
+  &#125;
+&#125;</code></pre>
+        </div>
+
+        <div class="info-box">
+          <h3>✨ Avantages des Propriétés</h3>
+          <ul>
+            <li>✅ <strong>Réactivité automatique</strong> : Le template se met à jour seul</li>
+            <li>✅ <strong>Performance</strong> : Change detection optimisée</li>
+            <li>✅ <strong>Simplicité</strong> : Pas besoin de ChangeDetectorRef</li>
+            <li>✅ <strong>Type-safe</strong> : TypeScript vérifie les types</li>
+          </ul>
+        </div>
+      </section>
+    }
+
+  </div>
+
+  <!-- Navigation -->
+  <div class="navigation-buttons">
+    @if (currentStep() > 1) {
+      <button class="nav-btn prev" (click)="previousStep()">← Précédent</button>
+    }
+    @if (currentStep() < steps.length) {
+      <button class="nav-btn next" (click)="nextStep()">Suivant →</button>
+    }
+  </div>
+</div>

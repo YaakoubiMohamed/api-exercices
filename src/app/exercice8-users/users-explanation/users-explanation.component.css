@@ -1,0 +1,166 @@
+.explanation-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.step {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+}
+
+h2 {
+  color: #2980b9;
+  margin-top: 0;
+  border-left: 4px solid #2980b9;
+  padding-left: 1rem;
+}
+
+.api-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #e67e22;
+  margin: 1rem 0;
+}
+
+.code-block {
+  background: #282c34;
+  color: #abb2bf;
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: 'Fira Code', monospace;
+}
+
+.code-block code {
+  font-size: 0.9rem;
+}
+
+.explanation {
+  background: #e8f4fd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.explanation h3 {
+  margin-top: 0;
+  color: #2980b9;
+  font-size: 1.1rem;
+}
+
+.explanation ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.explanation li {
+  margin-bottom: 0.5rem;
+}
+
+.diagram {
+  background: #fdf2e9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px dashed #e67e22;
+  margin: 1.5rem 0;
+}
+
+.warning {
+  background: #fff5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #feb2b2;
+  margin: 1.5rem 0;
+}
+
+.warning h4 {
+  color: #c53030;
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #f8f9fa;
+  color: #2c3e50;
+}
+
+.summary {
+  background: #f0fff4;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #c6f6d5;
+}
+
+.checklist {
+  background: #fffaf0;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #feebc8;
+  margin-top: 2rem;
+}
+
+.checklist h3 {
+  color: #7b341e;
+  margin-top: 1.5rem;
+}
+
+.checklist ul {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li {
+  margin-bottom: 0.5rem;
+}

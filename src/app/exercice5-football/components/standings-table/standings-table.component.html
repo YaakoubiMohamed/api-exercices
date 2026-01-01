@@ -1,0 +1,51 @@
+<div class="standings-container">
+  <h3>📊 Classement</h3>
+  
+  @if (standings().length > 0) {
+    <table class="standings-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Équipe</th>
+          <th>MJ</th>
+          <th>V</th>
+          <th>N</th>
+          <th>D</th>
+          <th>BP</th>
+          <th>BC</th>
+          <th>Diff</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (team of standings(); track team.team.id) {
+          <tr [class.top-4]="team.position <= 4"
+              [class.relegation]="team.position >= standings().length - 2">
+            <td class="position">{{ team.position }}</td>
+            <td class="team-cell">
+              @if (team.team.crest) {
+                <img [src]="team.team.crest" 
+                     [alt]="team.team.name" 
+                     class="team-crest">
+              }
+              <span class="team-name">{{ team.team.shortName }}</span>
+            </td>
+            <td>{{ team.playedGames }}</td>
+            <td class="won">{{ team.won }}</td>
+            <td>{{ team.draw }}</td>
+            <td class="lost">{{ team.lost }}</td>
+            <td>{{ team.goalsFor }}</td>
+            <td>{{ team.goalsAgainst }}</td>
+            <td [class.positive]="team.goalDifference > 0"
+                [class.negative]="team.goalDifference < 0">
+              {{ team.goalDifference > 0 ? '+' : '' }}{{ team.goalDifference }}
+            </td>
+            <td class="points">{{ team.points }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p class="no-data">Sélectionnez une compétition pour voir le classement</p>
+  }
+</div>
