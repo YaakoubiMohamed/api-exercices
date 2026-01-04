@@ -265,6 +265,7 @@ loadMore() &#123;
           <ul>
             <li><strong>set()</strong> : Remplacer complètement (recherche, reset)</li>
             <li><strong>update()</strong> : Modifier/Ajouter (load more, toggle)</li>
+            <li>✅ <strong>Respecter les filtres</strong> : Load More doit appliquer les mêmes filtres (genre + nationalité) que la recherche initiale</li>
           </ul>
         </div>
       </section>
@@ -378,6 +379,8 @@ filterByGender(gender: string) &#123;
             <li>✅ Reset de la pagination lors du changement de filtre</li>
             <li>✅ Utiliser <code>set()</code> car on remplace complètement les résultats</li>
             <li>✅ $event.target.value pour récupérer la valeur du select</li>
+            <li>✅ <strong>Combiner les filtres</strong> : L'API supporte plusieurs filtres simultanément (?gender=female&nat=de)</li>
+            <li>✅ <strong>Load More cohérent</strong> : Les nouveaux résultats doivent respecter les filtres actifs</li>
           </ul>
         </div>
       </section>

@@ -63,16 +63,24 @@ export class UserService {
    * 
    * @param nationality - Code de nationalité (fr, us, de, etc.)
    * @param count - Nombre d'utilisateurs
+   * @param gender - Filtrer par genre (optionnel)
    * @returns Observable<User[]>
    * 
    * 📚 EXPLANATION:
    * - Multiple params can be chained with .set()
    * - nat parameter filters by nationality
+   * - gender parameter filters by gender
+   * - The API supports combining both filters!
    */
-  getUsersByNationality(nationality: string, count: number = 10): Observable<User[]> {
-    const params = new HttpParams()
+  getUsersByNationality(nationality: string, count: number = 10, gender?: 'male' | 'female'): Observable<User[]> {
+    let params = new HttpParams()
       .set('results', count.toString())
       .set('nat', nationality);
+    
+    // Ajouter le filtre de genre si spécifié
+    if (gender) {
+      params = params.set('gender', gender);
+    }
     
     return this.http.get<RandomUserResponse>(this.BASE_URL, { params }).pipe(
       map(response => response.results)

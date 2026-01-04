@@ -185,13 +185,22 @@ export class UserService &#123;
   &#125;
   
   /**
-   * Obtenir des utilisateurs par nationalité
-   * URL finale: ?results=10&amp;nat=fr
+   * Obtenir des utilisateurs par nationalité avec filtre genre optionnel
+   * URL finale: ?results=10&amp;nat=fr&amp;gender=female
    */
-  getUsersByNationality(nationality: string, count: number = 10): Observable&lt;User[]&gt; &#123;
-    const params = new HttpParams()
+  getUsersByNationality(
+    nationality: string, 
+    count: number = 10,
+    gender?: 'male' | 'female'  // ✅ Filtre genre optionnel
+  ): Observable&lt;User[]&gt; &#123;
+    let params = new HttpParams()
       .set('results', count.toString())
       .set('nat', nationality);  // Code pays: fr, us, de, etc.
+    
+    // Ajouter le filtre de genre si spécifié
+    if (gender) &#123;
+      params = params.set('gender', gender);
+    &#125;
     
     return this.http.get&lt;RandomUserResponse&gt;(this.BASE_URL, &#123; params &#125;)
       .pipe(
@@ -323,21 +332,40 @@ export class UsersComponent &#123;
   /**
    * LOAD MORE PATTERN avec signal.update()
    * Ajoute à la liste existante sans remplacer
+   * ✅ IMPORTANT: Respecte les filtres actifs (genre ET nationalité)
    */
   loadMore(): void &#123;
     this.loadingMore.set(true);
     
-    this.userService.getUsers(10, this.selectedGender()).subscribe(&#123;
-      next: (newUsers) =&gt; &#123;
-        // ✅ .update() = modifier basé sur valeur actuelle
-        this.users.update(current =&gt; [...current, ...newUsers]);
-        this.loadingMore.set(false);
-      &#125;,
-      error: () =&gt; &#123;
-        this.error.set('Erreur lors du chargement');
-        this.loadingMore.set(false);
-      &#125;
-    &#125;);
+    const nationality = this.selectedNationality();
+    const gender = this.selectedGender();
+    
+    // Si une nationalité est sélectionnée, utiliser cette méthode
+    if (nationality) &#123;
+      // ✅ Passe le genre au service pour filtrage côté API
+      this.userService.getUsersByNationality(nationality, 10, gender).subscribe(&#123;
+        next: (newUsers) =&gt; &#123;
+          this.users.update(current =&gt; [...current, ...newUsers]);
+          this.loadingMore.set(false);
+        &#125;,
+        error: () =&gt; &#123;
+          this.error.set('Erreur lors du chargement');
+          this.loadingMore.set(false);
+        &#125;
+      &#125;);
+    &#125; else &#123;
+      this.userService.getUsers(10, gender).subscribe(&#123;
+        next: (newUsers) =&gt; &#123;
+          // ✅ .update() = modifier basé sur valeur actuelle
+          this.users.update(current =&gt; [...current, ...newUsers]);
+          this.loadingMore.set(false);
+        &#125;,
+        error: () =&gt; &#123;
+          this.error.set('Erreur lors du chargement');
+          this.loadingMore.set(false);
+        &#125;
+      &#125;);
+    &#125;
   &#125;
 &#125;</code></pre>
     </div>
@@ -697,6 +725,8 @@ API Response:
       <li>☐ "Load More" ajoute 10 (total 20, 30, etc.)</li>
       <li>☐ Filtre "Hommes" → que des hommes</li>
       <li>☐ Filtre "Femmes" → que des femmes</li>
+      <li>☐ Filtre nationalité → que des utilisateurs du pays</li>
+      <li>☐ ✅ "Load More" respecte TOUS les filtres actifs (genre + nationalité)</li>
       <li>☐ Bouton désactivé pendant loadingMore</li>
     </ul>
     

@@ -115,13 +115,9 @@ export class UsersComponent {
     
     // Si une nationalité est sélectionnée, utiliser cette méthode
     if (nationality) {
-      this.userService.getUsersByNationality(nationality, 10).subscribe({
+      this.userService.getUsersByNationality(nationality, 10, gender).subscribe({
         next: (data) => {
-          // Filtrer par genre côté client si nécessaire
-          const filtered = gender 
-            ? data.filter(u => u.gender === gender)
-            : data;
-          this.users.set(filtered);
+          this.users.set(data);
           this.loading.set(false);
         },
         error: () => {
@@ -150,20 +146,39 @@ export class UsersComponent {
    * - signal.update(): Updates based on current value
    * - [...current, ...newData]: Spread operator to merge arrays
    * - This is the reactive way to append data with signals!
+   * - Respects both gender and nationality filters
    */
   loadMore(): void {
     this.loadingMore.set(true);
     
-    this.userService.getUsers(10, this.selectedGender()).subscribe({
-      next: (newUsers) => {
-        // ✅ Use update() to append to existing array
-        this.users.update(current => [...current, ...newUsers]);
-        this.loadingMore.set(false);
-      },
-      error: () => {
-        this.error.set('Erreur lors du chargement');
-        this.loadingMore.set(false);
-      }
-    });
+    const nationality = this.selectedNationality();
+    const gender = this.selectedGender();
+    
+    // Si une nationalité est sélectionnée, utiliser cette méthode
+    if (nationality) {
+      this.userService.getUsersByNationality(nationality, 10, gender).subscribe({
+        next: (newUsers) => {
+          // ✅ Use update() to append to existing array
+          this.users.update(current => [...current, ...newUsers]);
+          this.loadingMore.set(false);
+        },
+        error: () => {
+          this.error.set('Erreur lors du chargement');
+          this.loadingMore.set(false);
+        }
+      });
+    } else {
+      this.userService.getUsers(10, gender).subscribe({
+        next: (newUsers) => {
+          // ✅ Use update() to append to existing array
+          this.users.update(current => [...current, ...newUsers]);
+          this.loadingMore.set(false);
+        },
+        error: () => {
+          this.error.set('Erreur lors du chargement');
+          this.loadingMore.set(false);
+        }
+      });
+    }
   }
 }
