@@ -11,7 +11,7 @@ import { RouterLink } from "@angular/router";
 @Component({
   selector: "app-football-explanation",
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: "./football-explanation.component.html",
   styleUrl: "./football-explanation.component.css"
 })

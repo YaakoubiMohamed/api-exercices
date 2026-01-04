@@ -1,6 +1,6 @@
 <div class="explanation-container">
   <header class="explanation-header">
-    <h1>⚽ Exercice 5 : Football Data - Explication Visuelle</h1>
+    <h1>⚽ Exercice 5 : Football Data - Architecture Angular 20</h1>
     <a routerLink="/football" class="back-link">← Retour à l'exercice</a>
   </header>
 
@@ -19,95 +19,125 @@
   <!-- Content Area -->
   <div class="content-area">
     
-    <!-- Step 1: HTTP Flow -->
+    <!-- Step 1: Angular 20 Architecture -->
     @if (currentStep() === 1) {
       <section class="step-content fade-in">
-        <h2>🌐 Flux de Requête HTTP avec Authentification</h2>
+        <h2>🏗️ Architecture Angular 20 - Structure Moderne</h2>
         
         <div class="visual-diagram">
-          <svg viewBox="0 0 900 500" class="http-flow">
-            <!-- Component -->
-            <g class="flow-box animate-scale" style="animation-delay: 0.1s;">
-              <rect x="50" y="50" width="180" height="80" rx="10" fill="#4CAF50" class="interactive-element"/>
-              <text x="140" y="85" text-anchor="middle" fill="white" font-weight="bold">Component</text>
-              <text x="140" y="105" text-anchor="middle" fill="white" font-size="12">football.component</text>
-              <title>Le composant initie la demande de données</title>
+          <svg viewBox="0 0 1000 550" class="architecture-flow">
+            <!-- App Config -->
+            <g class="flow-box animate-scale" style="animation-delay: 0.5s;">
+              <rect x="350" y="20" width="200" height="70" rx="10" fill="#673AB7" class="interactive-element"/>
+              <text x="450" y="45" text-anchor="middle" fill="white" font-weight="bold">app.config.ts</text>
+              <text x="450" y="65" text-anchor="middle" fill="white" font-size="11">provideHttpClient()</text>
+              <title>Configuration globale de l'application</title>
             </g>
             
-            <!-- Arrow 1 -->
-            <g class="arrow animate-flow">
-              <line x1="230" y1="90" x2="320" y2="90" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead)"/>
-              <text x="275" y="80" text-anchor="middle" fill="#333" font-size="12">getStandings()</text>
+            <!-- Arrow from Config to Component -->
+            <g class="animate-scale" style="animation-delay: 1s;">
+              <line x1="450" y1="90" x2="140" y2="150" stroke="#673AB7" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrowhead-purple)"/>
+              <text x="280" y="110" text-anchor="middle" fill="#673AB7" font-size="10">provides HttpClient</text>
             </g>
-            
-            <!-- Service -->
-            <g class="flow-box animate-scale" style="animation-delay: 0.3s;">
-              <rect x="320" y="50" width="180" height="80" rx="10" fill="#2196F3" class="interactive-element"/>
-              <text x="410" y="85" text-anchor="middle" fill="white" font-weight="bold">Service</text>
-              <text x="410" y="105" text-anchor="middle" fill="white" font-size="11">FootballService</text>
-              <title>Le service gère la communication HTTP</title>
-            </g>
-            
-            <!-- Auth Header -->
-            <g class="auth-box animate-float" style="animation-delay: 0.5s;">
-              <rect x="280" y="150" width="260" height="60" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="2" class="interactive-element"/>
-              <text x="410" y="175" text-anchor="middle" fill="#E65100" font-weight="bold" font-size="12">🔑 Headers</text>
-              <text x="410" y="195" text-anchor="middle" fill="#333" font-size="11">X-Auth-Token: YOUR_API_KEY</text>
-              <title>Le token d'authentification est ajouté aux headers</title>
-            </g>
-            
-            <!-- Arrow 2 -->
-            <g class="arrow animate-flow">
-              <line x1="500" y1="90" x2="590" y2="90" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead)"/>
-              <text x="545" y="80" text-anchor="middle" fill="#333" font-size="12">HTTP GET</text>
-            </g>
-            
-            <!-- API -->
-            <g class="flow-box animate-scale" style="animation-delay: 0.7s;">
-              <rect x="590" y="50" width="180" height="80" rx="10" fill="#FF5722" class="interactive-element"/>
-              <text x="680" y="80" text-anchor="middle" fill="white" font-weight="bold">API</text>
-              <text x="680" y="100" text-anchor="middle" fill="white" font-size="10">football-data.org</text>
-              <title>L'API externe reçoit la requête</title>
-            </g>
-            
-            <!-- Data Packet Request -->
-            <circle r="5" fill="#2196F3" class="data-packet">
-              <animateMotion path="M 230 90 L 320 90 L 500 90 L 590 90" dur="3s" repeatCount="indefinite" />
-            </circle>
-            
-            <!-- Response Arrow -->
-            <g class="arrow animate-flow">
-              <line x1="680" y1="130" x2="680" y2="240" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead-green)"/>
-              <text x="700" y="185" fill="#4CAF50" font-size="12" font-weight="bold">JSON Response</text>
-            </g>
-            
-            <!-- Observable -->
-            <g class="flow-box animate-scale" style="animation-delay: 0.9s;">
-              <rect x="590" y="240" width="180" height="80" rx="10" fill="#9C27B0" class="interactive-element"/>
-              <text x="680" y="270" text-anchor="middle" fill="white" font-weight="bold">Observable</text>
-              <text x="680" y="290" text-anchor="middle" fill="white" font-size="11">Flux asynchrone</text>
-              <title>La réponse est enveloppée dans un Observable</title>
-            </g>
-            
-            <!-- Arrow back -->
-            <g class="arrow animate-flow">
-              <line x1="590" y1="280" x2="230" y2="280" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead-purple)"/>
-              <text x="410" y="270" text-anchor="middle" fill="#9C27B0" font-size="12">subscribe()</text>
-            </g>
-            
-            <!-- Data Packet Response -->
-            <circle r="5" fill="#4CAF50" class="data-packet-return">
-              <animateMotion path="M 680 130 L 680 240 L 590 280 L 230 280" dur="3s" repeatCount="indefinite" />
-            </circle>
             
             <!-- Updated Component -->
-            <g class="flow-box animate-scale" style="animation-delay: 1.1s;">
-              <rect x="50" y="240" width="180" height="80" rx="10" fill="#4CAF50" stroke="#FFD700" stroke-width="4" class="interactive-element"/>
-              <text x="140" y="270" text-anchor="middle" fill="white" font-weight="bold">Component</text>
-              <text x="140" y="290" text-anchor="middle" fill="white" font-size="11">✅ Données reçues</text>
-              <text x="140" y="305" text-anchor="middle" fill="white" font-size="10">standings.set(data)</text>
-              <title>Le composant met à jour l'interface avec les données</title>
+            <g class="flow-box animate-scale" style="animation-delay: 1.5s;">
+              <rect x="50" y="150" width="180" height="90" rx="10" fill="#4CAF50" stroke="#FFD700" stroke-width="4" class="interactive-element"/>
+              <text x="140" y="175" text-anchor="middle" fill="white" font-weight="bold">Component</text>
+              <text x="140" y="195" text-anchor="middle" fill="white" font-size="11">football.component.ts</text>
+              <text x="140" y="215" text-anchor="middle" fill="white" font-size="10">inject(FootballService)</text>
+              <title>Le composant principal</title>
             </g>
+            
+            <!-- Arrow Component to Service -->
+            <g class="animate-scale" style="animation-delay: 2.5s;">
+              <line x1="230" y1="195" x2="530" y2="195" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead)"/>
+              <text x="380" y="180" text-anchor="middle" fill="#333" font-size="11">getStandings(code)</text>
+            </g>
+            
+            <!-- Service with inject() -->
+            <g class="flow-box animate-scale" style="animation-delay: 3s;">
+              <rect x="530" y="130" width="250" height="130" rx="10" fill="#2196F3" class="interactive-element"/>
+              <text x="655" y="155" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Service (inject)</text>
+              <text x="655" y="175" text-anchor="middle" fill="white" font-size="11">football.service.ts</text>
+              <text x="655" y="195" text-anchor="middle" fill="white" font-size="10">private http = inject(HttpClient)</text>
+              <text x="655" y="215" text-anchor="middle" fill="white" font-size="10">HttpHeaders + API Key</text>
+              <text x="655" y="235" text-anchor="middle" fill="white" font-size="10">return Observable&lt;Response&gt;</text>
+              <title>Service avec inject() moderne</title>
+            </g>
+            
+            <!-- Arrow to API -->
+            <g class="animate-scale" style="animation-delay: 3.5s;">
+              <line x1="780" y1="195" x2="830" y2="195" stroke="#333" stroke-width="3" marker-end="url(#arrowhead)"/>
+              <text x="805" y="180" text-anchor="middle" fill="#333" font-size="9">HTTP</text>
+            </g>
+            
+            <!-- External API -->
+            <g class="flow-box animate-scale" style="animation-delay: 4s;">
+              <rect x="830" y="150" width="140" height="90" rx="10" fill="#FF5722" class="interactive-element"/>
+              <text x="900" y="180" text-anchor="middle" fill="white" font-weight="bold">🌐 API</text>
+              <text x="900" y="200" text-anchor="middle" fill="white" font-size="10">Football Data</text>
+              <text x="900" y="220" text-anchor="middle" fill="white" font-size="9">JSON Response</text>
+              <title>API externe</title>
+            </g>
+            
+            <!-- Response Arrow from API -->
+            <g class="animate-scale" style="animation-delay: 4.5s;">
+              <line x1="900" y1="240" x2="900" y2="290" stroke="#4CAF50" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrowhead-green)"/>
+              <line x1="900" y1="290" x2="780" y2="350" stroke="#4CAF50" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrowhead-green)"/>
+              <text x="920" y="270" fill="#4CAF50" font-size="10" font-weight="bold">Response</text>
+            </g>
+            
+            <!-- Observable/RxJS -->
+            <g class="flow-box animate-scale" style="animation-delay: 5s;">
+              <rect x="530" y="320" width="250" height="90" rx="10" fill="#9C27B0" class="interactive-element"/>
+              <text x="655" y="345" text-anchor="middle" fill="white" font-weight="bold">RxJS Observable</text>
+              <text x="655" y="365" text-anchor="middle" fill="white" font-size="11">.subscribe(&#123; next, error &#125;)</text>
+              <text x="655" y="385" text-anchor="middle" fill="white" font-size="10">Async data stream</text>
+              <title>Flux asynchrone RxJS</title>
+            </g>
+            
+            <!-- Arrow Observable to Component -->
+            <g class="animate-scale" style="animation-delay: 5.5s;">
+              <line x1="530" y1="365" x2="230" y2="365" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrowhead-purple)"/>
+              <text x="380" y="355" text-anchor="middle" fill="#9C27B0" font-size="11">data received</text>
+            </g>
+            
+            <!-- Signal Update -->
+            <g class="flow-box animate-scale" style="animation-delay: 6s;">
+              <rect x="50" y="330" width="180" height="100" rx="10" fill="#4CAF50" stroke="#FFD700" stroke-width="4" class="interactive-element"/>
+              <text x="140" y="355" text-anchor="middle" fill="white" font-weight="bold">Signal Update</text>
+              <text x="140" y="375" text-anchor="middle" fill="white" font-size="10">standings.set(data)</text>
+              <text x="140" y="395" text-anchor="middle" fill="white" font-size="10">loading.set(false)</text>
+              <text x="140" y="415" text-anchor="middle" fill="white" font-size="9">✨ Auto UI Update</text>
+              <title>Mise à jour réactive des Signals</title>
+            </g>
+            
+            <!-- Arrow Signal to Template -->
+            <g class="animate-scale" style="animation-delay: 6.5s;">
+              <line x1="230" y1="400" x2="350" y2="460" stroke="#4CAF50" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrowhead-green)"/>
+              <text x="270" y="445" fill="#4CAF50" font-size="9">reactivity</text>
+            </g>
+            
+            <!-- Template -->
+            <g class="flow-box animate-scale" style="animation-delay: 7s;">
+              <rect x="350" y="440" width="300" height="80" rx="10" fill="#F3E5F5" stroke="#9C27B0" stroke-width="3" class="interactive-element"/>
+              <text x="500" y="465" text-anchor="middle" fill="#7B1FA2" font-weight="bold">Template (&#64;if, &#64;for)</text>
+              <text x="500" y="485" text-anchor="middle" fill="#333" font-size="11">&#64;for (team of standings(); track team.id)</text>
+              <text x="500" y="505" text-anchor="middle" fill="#333" font-size="10">Fine-grained DOM updates</text>
+              <title>Template avec nouveaux control flow</title>
+            </g>
+            
+            <!-- Data Packet Animation - starts after all elements shown -->
+            <circle r="6" fill="#FFD700" stroke="#333" stroke-width="1" class="data-packet">
+              <animateMotion 
+                path="M 230 195 L 530 195 L 780 195 L 900 195 L 900 290 L 780 350 L 655 350 L 530 365 L 230 365 L 140 365 L 140 400" 
+                dur="10s" 
+                repeatCount="indefinite" 
+                begin="8s" 
+                calcMode="linear"/>
+              <animate attributeName="opacity" values="0;1;1;1;0" dur="10s" repeatCount="indefinite" begin="8s"/>
+            </circle>
             
             <defs>
               <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -124,240 +154,182 @@
         </div>
 
         <div class="info-box">
-          <h3>🔑 Points Clés</h3>
+          <h3>🎯 Angular 20 - Points Clés</h3>
           <ul>
-            <li><strong>HttpHeaders</strong> : Ajouter l'authentification API</li>
-            <li><strong>Observable</strong> : Flux de données asynchrone</li>
-            <li><strong>subscribe()</strong> : Récupérer les données</li>
-            <li><strong>properties</strong> : Gestion d'état du composant</li>
+            <li><strong>provideHttpClient()</strong> : Configuration globale dans app.config.ts</li>
+            <li><strong>inject()</strong> : DI moderne, sans constructeur</li>
+            <li><strong>signal()</strong> : Gestion d'état réactive et performante</li>
+            <li><strong>.set()</strong> : Mise à jour immédiate des Signals</li>
+            <li><strong>Observable</strong> : RxJS pour les événements async (HTTP)</li>
+            <li><strong>&#64;if / &#64;for</strong> : Nouveau control flow Angular 17+ API</li>
           </ul>
         </div>
       </section>
     }
 
-    <!-- Step 2: Service with Authentication -->
+    <!-- Step 2: inject() vs Constructor -->
     @if (currentStep() === 2) {
       <section class="step-content fade-in">
-        <h2>🔐 Service avec Authentification</h2>
+        <h2>🔧 inject() - Injection de Dépendances Moderne</h2>
         
-        <div class="code-explanation">
-
-          <div class="code-line" (click)="toggleExplanation(2)" [class.active]="activeExplanation() === 2">
-            <div class="line-number">2</div>
-            <code>import &#123; HttpClient, HttpHeaders &#125; from '@angular/common/http';</code>
-            @if (activeExplanation() === 2) {
-              <div class="explanation-popup">
-                <strong>HttpClient</strong> : Service pour les requêtes HTTP<br>
-                <strong>HttpHeaders</strong> : Configuration des en-têtes (auth, content-type)
-              </div>
-            }
+        <div class="comparison-container">
+          <div class="comparison-box old-way">
+            <h3>❌ Ancienne Méthode (Constructor)</h3>
+            <pre ngNonBindable><code>export class FootballService &#123;
+  
+  // Constructor avec paramètres
+  constructor(
+    private readonly http: HttpClient
+  ) &#123;&#125;
+  
+  getStandings(): Observable&lt;Response&gt; &#123;
+    return this.http.get&lt;Response&gt;(url);
+  &#125;
+&#125;</code></pre>
+            <ul>
+              <li>✗ Constructeur encombré si beaucoup de dépendances</li>
+              <li>✗ Moins lisible avec 5+ services</li>
+              <li>✗ Impossible hors des classes</li>
+            </ul>
           </div>
 
-          <div class="code-line" (click)="toggleExplanation(3)" [class.active]="activeExplanation() === 3">
-            <div class="line-number">4</div>
-            <code>constructor(private readonly http: HttpClient) &#123;&#125;</code>
-            @if (activeExplanation() === 3) {
-              <div class="explanation-popup">
-                <strong>private</strong> : Accessible uniquement dans cette classe<br>
-                <strong>readonly</strong> : Ne peut pas être réassigné<br>
-                <strong>constructor</strong> : Injection via constructeur
-              </div>
-            }
-          </div>
-
-          <div class="code-line" (click)="toggleExplanation(4)" [class.active]="activeExplanation() === 4">
-            <div class="line-number">5</div>
-            <code>private readonly apiKey = 'YOUR_API_KEY';</code>
-            @if (activeExplanation() === 4) {
-              <div class="explanation-popup">
-                Stocke la clé API. En production, utiliser les <strong>environment variables</strong>
-                pour la sécurité.
-              </div>
-            }
-          </div>
-
-          <div class="code-line" (click)="toggleExplanation(5)" [class.active]="activeExplanation() === 5">
-            <div class="line-number">8</div>
-            <code>const headers = new HttpHeaders(&#123;</code>
-            @if (activeExplanation() === 5) {
-              <div class="explanation-popup">
-                <strong>HttpHeaders</strong> : Crée un objet d'en-têtes HTTP pour l'authentification.
-              </div>
-            }
-          </div>
-
-          <div class="code-line" (click)="toggleExplanation(6)" [class.active]="activeExplanation() === 6">
-            <div class="line-number">9</div>
-            <code>  'X-Auth-Token': this.apiKey</code>
-            @if (activeExplanation() === 6) {
-              <div class="explanation-popup">
-                <strong>X-Auth-Token</strong> : Header spécifique à l'API Football Data.
-                Chaque API a son propre format d'authentification.
-              </div>
-            }
-          </div>
-
-          <div class="code-line" (click)="toggleExplanation(7)" [class.active]="activeExplanation() === 7">
-            <div class="line-number">12</div>
-            <code>return this.http.get&lt;Response&gt;(url, &#123; headers &#125;);</code>
-            @if (activeExplanation() === 7) {
-              <div class="explanation-popup">
-                <strong>get&lt;Response&gt;()</strong> : Requête GET typée<br>
-                <strong>&#123; headers &#125;</strong> : Passe les headers à la requête<br>
-                Retourne un <strong>Observable&lt;Response&gt;</strong>
-              </div>
-            }
+          <div class="comparison-box new-way">
+            <h3>✅ Nouvelle Méthode Angular 14+ (inject)</h3>
+            <pre ngNonBindable><code>export class FootballService &#123;
+  
+  // inject() au niveau de la propriété
+  private readonly http = inject(HttpClient);
+  
+  getStandings(): Observable&lt;Response&gt; &#123;
+    return this.http.get&lt;Response&gt;(url);
+  &#125;
+&#125;</code></pre>
+            <ul>
+              <li>✓ Plus propre et concis</li>
+              <li>✓ Type inféré automatiquement</li>
+              <li>✓ Utilisable dans les fonctions/guards</li>
+              <li>✓ Recommandé par Angular Team</li>
+            </ul>
           </div>
         </div>
 
         <div class="code-block">
-          <h4>Code Complet du Service</h4>
-          <pre ngNonBindable><code>export class FootballService &#123;
-  private readonly apiKey = 'YOUR_API_KEY';
-  private readonly baseUrl = 'https://api.football-data.org/v4';
+          <h4>📦 Service Complet avec inject()</h4>
+          <pre ngNonBindable><code>// football.service.ts
+import &#123; Injectable, inject &#125; from '&#64;angular/core';
+import &#123; HttpClient, HttpHeaders &#125; from '&#64;angular/common/http';
 
-  constructor(private readonly http: HttpClient) &#123;&#125;
-
-  getStandings(competitionId: number): Observable&lt;StandingsResponse&gt; &#123;
-    const headers = new HttpHeaders(&#123;
-      'X-Auth-Token': this.apiKey
-    &#125;);
-    
-    const url = &#96;$&#123;this.baseUrl&#125;/competitions/$&#123;competitionId&#125;/standings&#96;;
-    return this.http.get&lt;StandingsResponse&gt;(url, &#123; headers &#125;);
+&#64;Injectable(&#123; providedIn: 'root' &#125;)
+export class FootballService &#123;
+  
+  // ✅ Injection moderne avec inject()
+  private readonly http = inject(HttpClient);
+  
+  private readonly API_KEY = '9be36b8187f24de0951f540fb962b655';
+  private readonly headers = new HttpHeaders(&#123;
+    'X-Auth-Token': this.API_KEY
+  &#125;);
+  
+  getStandings(code: string): Observable&lt;StandingsResponse&gt; &#123;
+    const url = &#96;/api/football/competitions/$&#123;code&#125;/standings&#96;;
+    return this.http.get&lt;StandingsResponse&gt;(url, &#123; headers: this.headers &#125;);
   &#125;
 &#125;</code></pre>
         </div>
 
         <div class="info-box">
-          <h3>💡 Astuce</h3>
-          <p>Cliquez sur chaque ligne pour voir l'explication détaillée !</p>
+          <h3>💡 Pourquoi inject() est mieux ?</h3>
+          <ul>
+            <li><strong>Lisibilité</strong> : Pas de constructeur massif</li>
+            <li><strong>Flexibilité</strong> : Fonctionne dans les guards, resolvers, fonctions</li>
+            <li><strong>Type Safety</strong> : TypeScript infère le type</li>
+            <li><strong>Future-proof</strong> : Aligné avec la direction d'Angular</li>
+          </ul>
         </div>
       </section>
     }
 
-    <!-- Step 3: Component with Properties -->
+    <!-- Step 3: Signals Deep Dive -->
     @if (currentStep() === 3) {
       <section class="step-content fade-in">
-        <h2>⚡ Component avec Propriétés</h2>
+        <h2>🚀 Signals - Gestion d'État Réactive</h2>
         
-        <div class="visual-diagram">
-          <svg viewBox="0 0 800 450" class="component-diagram">
-            <!-- Service Injection -->
-            <g class="box animate-scale" style="animation-delay: 0.1s;">
-              <rect x="50" y="50" width="200" height="70" rx="10" fill="#2196F3" class="interactive-element"/>
-              <text x="150" y="80" text-anchor="middle" fill="white" font-weight="bold">Service Injection</text>
-              <text x="150" y="100" text-anchor="middle" fill="white" font-size="11">constructor(service)</text>
-              <title>Injection du service dans le constructeur</title>
-            </g>
-            
-            <!-- Property Declaration -->
-            <g class="box animate-scale" style="animation-delay: 0.3s;">
-              <rect x="300" y="50" width="200" height="70" rx="10" fill="#9C27B0" class="interactive-element"/>
-              <text x="400" y="80" text-anchor="middle" fill="white" font-weight="bold">Property Declaration</text>
-              <text x="400" y="100" text-anchor="middle" fill="white" font-size="11">standings: Standing[] = []</text>
-              <title>Déclaration de la propriété pour stocker les données</title>
-            </g>
-            
-            <!-- Subscribe -->
-            <g class="box animate-scale" style="animation-delay: 0.5s;">
-              <rect x="550" y="50" width="200" height="70" rx="10" fill="#FF9800" class="interactive-element"/>
-              <text x="650" y="80" text-anchor="middle" fill="white" font-weight="bold">Subscribe</text>
-              <text x="650" y="100" text-anchor="middle" fill="white" font-size="11">.subscribe(data =&gt; ...)</text>
-              <title>Souscription à l'observable pour recevoir les données</title>
-            </g>
-            
-            <!-- Arrow Flow -->
-            <line x1="150" y1="120" x2="150" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
-            <line x1="400" y1="120" x2="400" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
-            <line x1="650" y1="120" x2="650" y2="180" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-down)" class="animate-flow"/>
-            
-            <!-- Load Method -->
-            <g class="method-box animate-scale" style="animation-delay: 0.7s;">
-              <rect x="150" y="180" width="500" height="100" rx="10" fill="#E8F5E9" stroke="#4CAF50" stroke-width="3" class="interactive-element"/>
-              <text x="400" y="210" text-anchor="middle" fill="#2E7D32" font-weight="bold" font-size="15">loadStandings() Method</text>
-              <text x="170" y="240" fill="#333" font-size="13" font-family="monospace">this.service.getStandings(id)</text>
-              <text x="180" y="260" fill="#333" font-size="13" font-family="monospace">.subscribe(response =&gt; &#123;</text>
-              <text x="200" y="275" fill="#333" font-size="13" font-family="monospace">this.standings.set(response.standings);</text>
-              <title>Méthode qui orchestre la récupération des données</title>
-            </g>
-            
-            <!-- Arrow to Template -->
-            <line x1="400" y1="280" x2="400" y2="340" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow-purple-down)" class="animate-flow"/>
-            <text x="420" y="310" fill="#9C27B0" font-weight="bold">Auto Update</text>
-            
-            <!-- Data Packet -->
-            <circle r="5" fill="#9C27B0" class="data-packet">
-              <animateMotion path="M 400 280 L 400 340" dur="1s" repeatCount="indefinite" />
-            </circle>
-            
-            <!-- Template -->
-            <g class="template-box animate-scale" style="animation-delay: 0.9s;">
-              <rect x="150" y="340" width="500" height="80" rx="10" fill="#F3E5F5" stroke="#9C27B0" stroke-width="3" class="interactive-element"/>
-              <text x="400" y="370" text-anchor="middle" fill="#7B1FA2" font-weight="bold">Template (Vue)</text>
-              <text x="400" y="395" text-anchor="middle" fill="#333" font-size="12">&#64;for (team of standings(); track team.position)</text>
-              <title>Le template se met à jour automatiquement</title>
-            </g>
-            
-            <defs>
-              <marker id="arrow-down" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                <polygon points="0 0, 10 3, 0 6" fill="#4CAF50" />
-              </marker>
-              <marker id="arrow-purple-down" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                <polygon points="0 0, 10 3, 0 6" fill="#9C27B0" />
-              </marker>
-            </defs>
-          </svg>
-        </div>
-
-        <div class="code-block">
-          <h4>Code du Component</h4>
-          <pre ngNonBindable><code>export class FootballComponent &#123;
-  
-  constructor(private readonly footballService: FootballService) &#123;&#125;
+        <div class="comparison-container">
+          <div class="comparison-box old-way">
+            <h3>❌ Ancienne Méthode (Properties)</h3>
+            <pre ngNonBindable><code>export class FootballComponent &#123;
   
   standings: Standing[] = [];
   loading: boolean = false;
-
-  loadStandings(competitionId: number) &#123;
+  
+  loadData() &#123;
     this.loading = true;
-    
-    this.footballService.getStandings(competitionId)
-      .subscribe(&#123;
-        next: (response) => &#123;
-          this.standings = response.standings&#91;0&#93;.table;
-          this.loading = false;
-        &#125;,
-        error: (err) => &#123;
-          console.error(err);
-          this.loading = false;
-        &#125;
+    this.service.getData()
+      .subscribe(data => &#123;
+        // Assigner directement
+        this.standings = data;
+        this.loading = false;
       &#125;);
   &#125;
 &#125;</code></pre>
+            <p><strong>Problème :</strong> Zone.js vérifie TOUT le composant à chaque changement</p>
+          </div>
+
+          <div class="comparison-box new-way">
+            <h3>✅ Nouvelle Méthode Angular 16+ (Signals)</h3>
+            <pre ngNonBindable><code>export class FootballComponent &#123;
+  
+  // Signals = Conteneurs réactifs
+  readonly standings = signal&lt;Standing[]&gt;([]);
+  readonly loading = signal(false);
+  
+  loadData() &#123;
+    this.loading.set(true);
+    this.service.getData()
+      .subscribe(data => &#123;
+        // Mise à jour via .set()
+        this.standings.set(data);
+        this.loading.set(false);
+      &#125;);
+  &#125;
+&#125;</code></pre>
+            <p><strong>Avantage :</strong> Angular met à jour UNIQUEMENT ce qui utilise ce signal</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <h4>🎯 Les 3 Opérations sur les Signals</h4>
+          <pre ngNonBindable><code>// 1️⃣ CRÉATION : signal(valeurInitiale)
+readonly count = signal(0);
+readonly users = signal&lt;User[]&gt;([]);
+
+// 2️⃣ LECTURE : appeler comme une fonction ()
+console.log(this.count());  // Affiche : 0
+const value = this.count(); // Lit la valeur
+
+// Template
+&#64;if (loading()) &#123; ... &#125;  // Parenthèses obligatoires!
+&#64;for (team of standings(); track team.id) &#123; ... &#125;
+
+// 3️⃣ MISE À JOUR :
+// .set() = Remplacer complètement
+this.count.set(10);
+this.users.set(newUserArray);
+
+// .update() = Modifier basé sur la valeur actuelle
+this.count.update(n => n + 1);  // Incrémente
+this.users.update(list => [...list, newUser]);  // Ajoute</code></pre>
         </div>
 
         <div class="info-box">
-          <h3>✨ Avantages des Propriétés</h3>
+          <h3>✨ Pourquoi Signals est Révolutionnaire ?</h3>
           <ul>
-            <li>✅ <strong>Réactivité automatique</strong> : Le template se met à jour seul</li>
-            <li>✅ <strong>Performance</strong> : Change detection optimisée</li>
-            <li>✅ <strong>Simplicité</strong> : Pas besoin de ChangeDetectorRef</li>
-            <li>✅ <strong>Type-safe</strong> : TypeScript vérifie les types</li>
+            <li>⚡ <strong>Performance</strong> : Fine-grained reactivity (mise à jour ciblée)</li>
+            <li>🎯 <strong>Simplicité</strong> : Pas besoin de OnPush, markForCheck()</li>
+            <li>🔒 <strong>Immutabilité</strong> : readonly empêche les modifications externes</li>
+            <li>🧠 <strong>Prévisibilité</strong> : Flux de données unidirectionnel clair</li>
+            <li>🚀 <strong>Future</strong> : Préparation pour Zoneless Angular</li>
           </ul>
         </div>
       </section>
     }
-
-  </div>
-
-  <!-- Navigation -->
-  <div class="navigation-buttons">
-    @if (currentStep() > 1) {
-      <button class="nav-btn prev" (click)="previousStep()">← Précédent</button>
-    }
-    @if (currentStep() < steps.length) {
-      <button class="nav-btn next" (click)="nextStep()">Suivant →</button>
-    }
-  </div>
-</div>

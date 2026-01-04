@@ -2,7 +2,7 @@
   <header>
     <a routerLink="/users" class="back-link">← Retour à l'exercice</a>
     <h1>📚 Exercice 8 - Explication Détaillée</h1>
-    <p class="subtitle">Pagination et Query Parameters</p>
+    <p class="subtitle">Query Parameters, HttpParams et Pattern Load More (Angular 20)</p>
   </header>
   
   <!-- Step 1 -->
@@ -10,12 +10,49 @@
     <h2>🎯 Objectif de l'exercice</h2>
     <p>
       Créer une application pour afficher une liste d'utilisateurs aléatoires 
-      avec pagination (Load More) et filtrage par genre.
+      avec pagination (Load More), filtrage par genre et nationalité, en utilisant
+      les <strong>Query Parameters</strong> avec HttpParams.
     </p>
     <div class="api-info">
       <strong>API utilisée:</strong> RandomUser.me<br>
       <strong>URL de base:</strong> https://randomuser.me/api<br>
-      <strong>Authentification:</strong> ❌ Aucune clé API requise !
+      <strong>Authentification:</strong> ❌ Aucune clé API requise !<br>
+      <strong>Concept clé:</strong> 🔗 Query Parameters (?results=10&amp;gender=female)
+    </div>
+    
+    <div class="explanation">
+      <h3>🔗 Qu'est-ce qu'un Query Parameter?</h3>
+      <ul>
+        <li><strong>Query Parameter</strong>: Paramètres ajoutés après le '?' dans l'URL pour filtrer/paginer.
+        <br>Format: <code>?key1=value1&amp;key2=value2</code>
+        <br>Exemple: <code>?results=10&amp;gender=female&amp;nat=fr</code>
+        <br>Utilisé pour les filtres, pagination, tri - ne modifie pas la ressource ciblée.</li>
+        <li><strong>Différence Path vs Query:</strong>
+        <br>• Path: <code>/users/123</code> → Identifie une ressource spécifique
+        <br>• Query: <code>/users?page=2&amp;limit=10</code> → Filtre une collection</li>
+      </ul>
+    </div>
+  </section>
+  
+  <!-- Angular 20 Architecture -->
+  <section class="step">
+    <h2>🏗️ Architecture Angular 20</h2>
+    <div class="explanation">
+      <h3>📐 Patterns modernes de cet exercice:</h3>
+      <ul>
+        <li><strong>inject()</strong>: Injection de dépendances fonctionnelle (Angular 14+).
+        Plus concis que constructor injection, fonctionne partout.</li>
+        <li><strong>signal()</strong>: Gestion d'état réactive native (Angular 16+).
+        Remplace les propriétés simples pour une détection de changement optimale.</li>
+        <li><strong>.set(value)</strong>: Remplace complètement la valeur du signal.
+        Utilisé pour le chargement initial ou le remplacement de liste.</li>
+        <li><strong>.update(fn)</strong>: Met à jour basé sur la valeur actuelle.
+        Parfait pour le pattern Load More: ajouter sans remplacer!</li>
+        <li><strong>HttpParams</strong>: Construction propre des query parameters.
+        Immutable, type-safe, encode automatiquement les caractères spéciaux.</li>
+        <li><strong>pipe(map())</strong>: Transformation de la réponse API dans le service.
+        Sépare la logique de transformation du composant.</li>
+      </ul>
     </div>
   </section>
   
@@ -25,8 +62,8 @@
     <div class="code-block">
       <pre ngNonBindable><code>exercice8-users/
 ├── users/
-│   ├── users.component.ts         # Composant principal
-│   ├── users.component.html       # Template HTML
+│   ├── users.component.ts         # Composant avec Signals + inject()
+│   ├── users.component.html       # Template avec &#64;if/&#64;for
 │   └── users.component.css        # Styles CSS
 ├── users-explanation/
 │   └── ...                        # Composant d'explication
@@ -35,7 +72,7 @@
 ├── models/
 │   └── user.model.ts              # Interfaces TypeScript
 └── services/
-    └── user.service.ts            # Service avec query params</code></pre>
+    └── user.service.ts            # Service avec HttpParams + inject()</code></pre>
     </div>
   </section>
   
@@ -44,175 +81,11 @@
     <h2>📝 Étape 2: Créer les interfaces</h2>
     <div class="code-block">
       <pre ngNonBindable><code>// user.model.ts
+
+// Wrapper de la réponse API (contient metadata)
 export interface RandomUserResponse &#123;
-  results: User[];     // Tableau d'utilisateurs
-  info: &#123;
-    page: number;
-    results: number;
-  &#125;;
-&#125;
-
-export interface User &#123;
-  name: &#123;
-    first: string;
-    last: string;
-  &#125;;
-  email: string;
-  gender: 'male' | 'female';  // Type littéral
-  picture: &#123;
-    medium: string;
-  &#125;;
-  location: &#123;
-    city: string;
-    country: string;
-  &#125;;
-  login: &#123;
-    uuid: string;      // Identifiant unique
-  &#125;;
-&#125;</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Mots-clés TypeScript détaillés:</h3>
-      <ul>
-        <li><strong>'male' | 'female'</strong>: Union Type - définit que la valeur peut être UNIQUEMENT 'male' OU 'female'. 
-        TypeScript refusera toute autre valeur: gender = 'other' générera une erreur de compilation. 
-        C'est plus sécurisé que 'gender: string' qui accepterait n'importe quelle chaîne. 
-        Union types sont puissants: number | string, User | null, 'success' | 'error' | 'loading'. 
-        L'autocomplétion VS Code propose uniquement les valeurs valides, réduisant les erreurs.</li>
-        <li><strong>uuid</strong>: Universally Unique Identifier - identifiant unique garanti globalement unique (128 bits). 
-        Format: 550e8400-e29b-41d4-a716-446655440000 (8-4-4-4-12 caractères hexa). 
-        Contrairement à un ID auto-incrémenté (1, 2, 3), un UUID peut être généré côté client sans risque de collision. 
-        Parfait comme clé de tracking dans les boucles Angular: track user.login.uuid assure l'unicité. 
-        Génération: crypto.randomUUID() ou libraries comme uuid (npm).</li>
-      </ul>
-    </div>
-  </section>
-  
-  <!-- Step 4 -->
-  <section class="step">
-    <h2>🔧 Étape 3: Service avec HttpParams</h2>
-    <div class="code-block">
-      <pre ngNonBindable><code>// user.service.ts
-import &#123; Injectable &#125; from '&#64;angular/core';
-import &#123; HttpClient, HttpParams &#125; from '&#64;angular/common/http';
-import &#123; Observable &#125; from 'rxjs';
-import &#123; map &#125; from 'rxjs/operators';
-
-&#64;Injectable(&#123; providedIn: 'root' &#125;)
-export class UserService &#123;
-  private readonly apiUrl = 'https://randomuser.me/api';
-
-  constructor(private readonly http: HttpClient) &#123;&#125;
-
-  getUsers(count: number = 10, gender?: 'male' | 'female'): Observable&lt;User[]&gt; &#123;
-    // Construction des query parameters
-    let params = new HttpParams()
-      .set('results', count.toString());
-    
-    if (gender) &#123;
-      params = params.set('gender', gender);
-    &#125;
-    
-    // URL: https://randomuser.me/api?results=10&amp;gender=female
-    return this.http.get&lt;RandomUserResponse&gt;(this.apiUrl, &#123; params &#125;)
-      .pipe(
-        map(response =&gt; response.results)
-      );
-  &#125;
-&#125;</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
-      <ul>
-        <li><strong>HttpParams</strong>: Classe Angular pour construire proprement les query parameters d'URL (?key1=value1&key2=value2). 
-        Avantages vs concaténation manuelle: 
-        - Encode automatiquement les caractères spéciaux (espaces, &, =, etc.) 
-        - API fluide avec méthodes chainées: .set().set().append() 
-        - Immutable: Chaque .set() retourne un NOUVEAU HttpParams 
-        - Type-safe: Évite les erreurs de syntaxe dans l'URL 
-        Exemple: new HttpParams().set('q', 'hello world') devient ?q=hello%20world</li>
-        <li><strong>.set(key, value)</strong>: Méthode pour ajouter ou remplacer un paramètre. 
-        ATTENTION: HttpParams est IMMUTABLE - .set() retourne un NOUVEL objet, ne modifie pas l'existant. 
-        ❌ FAUX: params.set('results', '10'); // La valeur est perdue! 
-        ✅ CORRECT: params = params.set('results', '10'); // Réaffectation nécessaire 
-        Si la clé existe déjà, elle est remplacée. Pour ajouter plusieurs valeurs, utilisez .append() au lieu de .set().</li>
-        <li><strong>params = params.set()</strong>: Pattern de réaffectation nécessaire car HttpParams est immutable. 
-        Similaire aux méthodes de String: 'hello'.toUpperCase() ne modifie pas 'hello', retourne 'HELLO'. 
-        L'immutabilité prévient les bugs: Impossible de modifier accidentellement un HttpParams utilisé ailleurs. 
-        Facilite le debugging: Chaque état est un nouvel objet, traçable indépendamment.</li>
-        <li><strong>pipe(map())</strong>: Combinaison de deux concepts RxJS: 
-        - pipe(): Méthode pour enchaîner des opérateurs de transformation 
-        - map(): Opérateur qui transforme chaque valeur émise par l'Observable 
-        Ici: transforme RandomUserResponse en User[] en extrayant response.results. 
-        Sépare la logique de transformation (service) de la logique métier (component). 
-        Alternative sans map(): Le component devrait faire users = response.results (moins propre).</li>
-        <li><strong>gender?:</strong>: Paramètre optionnel de fonction TypeScript. 
-        Le '?' signifie que le paramètre peut être omis lors de l'appel. 
-        getUsers(10) est valide, gender sera undefined. getUsers(10, 'male') est aussi valide. 
-        Dans le code: if (gender) vérifie si le paramètre a été fourni avant de l'utiliser. 
-        Alternative: Valeur par défaut avec gender: 'male' | 'female' = 'male'.</li>
-      </ul>
-    </div>
-  </section>
-  
-  <!-- Step 5 -->
-  <section class="step">
-    <h2>🏠 Étape 4: Load More Pattern</h2>
-    <div class="code-block">
-      <pre ngNonBindable><code>export class UsersComponent &#123;
-  
-  constructor(private readonly userService: UserService) &#123;&#125;
-  
-  users: User[] = [];
-  loading: boolean = false;
-  selectedGender: 'male' | 'female' | undefined = undefined;
-
-  // Charger les utilisateurs (remplace la liste)
-  loadUsers(): void &#123;
-    this.loading = true;
-    
-    this.userService.getUsers(10, this.selectedGender)
-      .subscribe(&#123;
-        next: (data) =&gt; &#123;
-          this.users = data;  // Remplace
-          this.loading = false;
-        &#125;
-      &#125;);
-  &#125;
-
-  // Charger plus (ajoute à la liste)
-  loadMore(): void &#123;
-    this.loading = true;
-    
-    this.userService.getUsers(10, this.selectedGender)
-      .subscribe(&#123;
-        next: (newUsers) =&gt; &#123;
-          // IMPORTANT: spread operator pour ajouter
-          this.users = [...this.users, ...newUsers];
-          this.loading = false;
-        &#125;
-      &#125;);
-  &#125;
-&#125;</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Pattern Load More:</h3>
-      <ul>
-        <li><strong>property = value</strong> - Remplace complètement la valeur</li>
-        <li><strong>property = [...property, ...new]</strong> - Ajoute à la liste existante</li>
-        <li><strong>[...current, ...new]</strong> - Spread operator: fusionne les tableaux</li>
-      </ul>
-    </div>
-  </section>
-  
-  <!-- RxJS map() Explanation -->
-  <section class="step">
-    <h2>🔧 Étape 4b: RxJS map() Operator</h2>
-    <div class="code-block">
-      <pre ngNonBindable><code>// Structure de la réponse API
-interface RandomUserResponse &#123;
-  results: User[];              // ✅ Ce qu'on veut
-  info: &#123;                       // ❌ Pas nécessaire
+  results: User[];     // Tableau d'utilisateurs - ce qu'on veut!
+  info: &#123;              // Metadata - pas nécessaire pour nous
     seed: string;
     results: number;
     page: number;
@@ -220,228 +93,578 @@ interface RandomUserResponse &#123;
   &#125;;
 &#125;
 
-// Service AVEC map() - Plus propre!
+// Structure d'un utilisateur
+export interface User &#123;
+  gender: 'male' | 'female';    // Union type littéral
+  name: &#123;
+    title: string;
+    first: string;
+    last: string;
+  &#125;;
+  email: string;
+  phone: string;
+  picture: &#123;
+    large: string;
+    medium: string;
+    thumbnail: string;
+  &#125;;
+  location: &#123;
+    city: string;
+    country: string;
+  &#125;;
+  login: &#123;
+    uuid: string;      // Identifiant unique pour track
+    username: string;
+  &#125;;
+  dob: &#123;
+    age: number;       // Âge calculé
+  &#125;;
+&#125;</code></pre>
+    </div>
+    <div class="explanation">
+      <h3>🔑 Mots-clés TypeScript détaillés:</h3>
+      <ul>
+        <li><strong>'male' | 'female'</strong> (Union Type Littéral): Définit des valeurs exactes autorisées.
+        <br><em>Pourquoi l'utiliser?</em> TypeScript refusera gender = 'other' à la compilation.
+        Plus sécurisé que gender: string qui accepterait n'importe quelle chaîne.
+        VS Code propose uniquement 'male' ou 'female' dans l'autocomplétion.
+        <br>Autres exemples: 'success' | 'error' | 'loading', 1 | 2 | 3, null | User.</li>
+        <li><strong>uuid</strong> (login.uuid): Universally Unique Identifier généré par l'API.
+        <br><em>Pourquoi l'utiliser?</em> Identifiant garanti unique pour chaque utilisateur.
+        Format: 550e8400-e29b-41d4-a716-446655440000 (128 bits).
+        Parfait pour track dans &#64;for: track user.login.uuid.
+        Contrairement à un index (0, 1, 2), l'UUID reste stable si l'ordre change.</li>
+        <li><strong>Interface imbriquée</strong>: Objets dans des objets (name.first, location.city).
+        <br><em>Pourquoi l'utiliser?</em> Reflète exactement la structure JSON de l'API.
+        TypeScript valide l'accès: user.name.first ✅, user.firstname ❌ (erreur).
+        Autocomplétion profonde: tapez user.name. et voyez first, last, title.</li>
+        <li><strong>RandomUserResponse</strong>: Wrapper pour la réponse complète de l'API.
+        <br><em>Pourquoi l'utiliser?</em> L'API retourne &#123;results: [...], info: &#123;...&#125;&#125;.
+        On utilise map() dans le service pour extraire juste 'results'.
+        Sépare le type complet (pour http.get) du type utile (User[]).</li>
+      </ul>
+    </div>
+  </section>
+  
+  <!-- Step 4 - Service with HttpParams -->
+  <section class="step">
+    <h2>🔧 Étape 3: Service avec HttpParams et inject()</h2>
+    <div class="code-block">
+      <pre ngNonBindable><code>// user.service.ts
+import &#123; Injectable, inject &#125; from '&#64;angular/core';
+import &#123; HttpClient, HttpParams &#125; from '&#64;angular/common/http';
+import &#123; Observable &#125; from 'rxjs';
+import &#123; map &#125; from 'rxjs/operators';
+import &#123; RandomUserResponse, User &#125; from '../models/user.model';
+
+&#64;Injectable(&#123; providedIn: 'root' &#125;)
+export class UserService &#123;
+  // ✅ Angular 20: inject() remplace constructor injection
+  private readonly http = inject(HttpClient);
+  
+  private readonly BASE_URL = 'https://randomuser.me/api';
+
+  /**
+   * Obtenir des utilisateurs avec filtres optionnels
+   * URL finale: ?results=10&amp;gender=female
+   */
+  getUsers(count: number = 10, gender?: 'male' | 'female'): Observable&lt;User[]&gt; &#123;
+    // Construction des query parameters avec HttpParams
+    let params = new HttpParams()
+      .set('results', count.toString());
+    
+    // Ajout conditionnel du filtre genre
+    if (gender) &#123;
+      params = params.set('gender', gender);  // IMPORTANT: réaffectation!
+    &#125;
+    
+    return this.http.get&lt;RandomUserResponse&gt;(this.BASE_URL, &#123; params &#125;)
+      .pipe(
+        map(response =&gt; response.results)  // Extrait juste User[]
+      );
+  &#125;
+  
+  /**
+   * Obtenir des utilisateurs par nationalité
+   * URL finale: ?results=10&amp;nat=fr
+   */
+  getUsersByNationality(nationality: string, count: number = 10): Observable&lt;User[]&gt; &#123;
+    const params = new HttpParams()
+      .set('results', count.toString())
+      .set('nat', nationality);  // Code pays: fr, us, de, etc.
+    
+    return this.http.get&lt;RandomUserResponse&gt;(this.BASE_URL, &#123; params &#125;)
+      .pipe(
+        map(response =&gt; response.results)
+      );
+  &#125;
+&#125;</code></pre>
+    </div>
+    <div class="explanation">
+      <h3>🔑 HttpParams - Concepts détaillés:</h3>
+      <ul>
+        <li><strong>new HttpParams()</strong>: Crée un objet vide pour construire les query parameters.
+        <br><em>Pourquoi l'utiliser?</em> Alternative propre à la concaténation manuelle d'URL.
+        Encode automatiquement: 'hello world' → 'hello%20world'.
+        Évite les erreurs de syntaxe: gère les &amp; et = correctement.
+        Type-safe: l'IDE sait que params est un HttpParams.</li>
+        <li><strong>.set(key, value)</strong>: Ajoute ou remplace un paramètre.
+        <br><em>Pourquoi l'utiliser?</em> API fluide et chaînable.
+        <br>⚠️ ATTENTION: HttpParams est IMMUTABLE!
+        <br>❌ FAUX: params.set('results', '10'); // Valeur perdue!
+        <br>✅ CORRECT: params = params.set('results', '10');
+        <br>Chaque .set() retourne un NOUVEL objet, ne modifie pas l'original.</li>
+        <li><strong>params = params.set()</strong>: Pattern de réaffectation obligatoire.
+        <br><em>Pourquoi?</em> L'immutabilité prévient les bugs silencieux.
+        Si vous passez params à plusieurs endroits, il ne sera jamais modifié accidentellement.
+        Similaire à String: 'hello'.toUpperCase() retourne 'HELLO', ne modifie pas 'hello'.
+        Facilite le debugging: chaque état est un nouvel objet traçable.</li>
+        <li><strong>Chaînage: .set().set().set()</strong>: Construction fluide en une ligne.
+        <br>Exemple: new HttpParams().set('a', '1').set('b', '2').set('c', '3')
+        <br>Résultat: ?a=1&amp;b=2&amp;c=3
+        <br>Plus lisible que la concaténation: '?a=1' + '&amp;b=2' + '&amp;c=3'</li>
+        <li><strong>&#123; params &#125;</strong>: Shorthand ES6 pour &#123; params: params &#125;.
+        <br><em>Pourquoi l'utiliser?</em> Syntaxe concise quand la clé = nom de variable.
+        http.get(url, &#123; params &#125;) → Angular ajoute ?key=value à l'URL.
+        Autres options: &#123; headers &#125;, &#123; observe: 'response' &#125;.</li>
+        <li><strong>pipe(map())</strong>: Transformation de la réponse dans le service.
+        <br><em>Pourquoi l'utiliser?</em> Le service retourne Observable&lt;User[]&gt;, pas Observable&lt;RandomUserResponse&gt;.
+        Le composant reçoit directement User[], pas besoin d'extraire .results.
+        Séparation des préoccupations: transformation ici, logique métier dans le composant.
+        Plus facile à tester: mock simple qui retourne User[].</li>
+      </ul>
+      
+      <h3>📊 Construction de l'URL:</h3>
+      <div class="diagram">
+        <pre ngNonBindable>
+1. new HttpParams()
+   params = "" (vide)
+
+2. .set('results', '10')
+   params = "results=10"
+
+3. .set('gender', 'female')
+   params = "results=10&amp;gender=female"
+
+4. http.get(BASE_URL, &#123; params &#125;)
+   URL: https://randomuser.me/api?results=10&amp;gender=female
+        </pre>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Step 5 - Component with Signals and Load More -->
+  <section class="step">
+    <h2>🏠 Étape 4: Composant avec Signals et Load More Pattern</h2>
+    <div class="code-block">
+      <pre ngNonBindable><code>// users.component.ts
+import &#123; Component, inject, signal &#125; from '&#64;angular/core';
+import &#123; RouterLink &#125; from '&#64;angular/router';
+import &#123; UserService &#125; from '../services/user.service';
+import &#123; User &#125; from '../models/user.model';
+
+&#64;Component(&#123;
+  selector: 'app-users',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './users.component.html',
+  styleUrl: './users.component.css'
+&#125;)
+export class UsersComponent &#123;
+  // ✅ Angular 20: inject() remplace constructor
+  private readonly userService = inject(UserService);
+  
+  // ✅ Angular 16+: Signals pour l'état réactif
+  readonly users = signal&lt;User[]&gt;([]);
+  readonly loading = signal(false);
+  readonly loadingMore = signal(false);  // Séparé pour UX
+  readonly error = signal&lt;string | null&gt;(null);
+  readonly selectedGender = signal&lt;'male' | 'female' | undefined&gt;(undefined);
+  readonly selectedNationality = signal('');
+  
+  // Nationalités disponibles (constante)
+  readonly nationalities = [
+    &#123; code: 'fr', name: 'France', flag: '🇫🇷' &#125;,
+    &#123; code: 'us', name: 'États-Unis', flag: '🇺🇸' &#125;,
+    &#123; code: 'de', name: 'Allemagne', flag: '🇩🇪' &#125;,
+    // ...
+  ] as const;
+  
+  /**
+   * Charger les utilisateurs initiaux
+   * Utilise .set() pour REMPLACER la liste
+   */
+  loadInitialUsers(): void &#123;
+    this.loading.set(true);
+    this.error.set(null);
+    
+    this.userService.getUsers(10, this.selectedGender()).subscribe(&#123;
+      next: (data) =&gt; &#123;
+        this.users.set(data);  // ✅ .set() = remplacer
+        this.loading.set(false);
+      &#125;,
+      error: () =&gt; &#123;
+        this.error.set('Erreur lors du chargement');
+        this.loading.set(false);
+      &#125;
+    &#125;);
+  &#125;
+  
+  /**
+   * Définir le filtre de genre
+   */
+  setGenderFilter(gender: 'male' | 'female' | undefined): void &#123;
+    this.selectedGender.set(gender);
+    if (this.users().length &gt; 0) &#123;
+      this.refreshUsers();  // Recharger avec nouveau filtre
+    &#125;
+  &#125;
+  
+  /**
+   * LOAD MORE PATTERN avec signal.update()
+   * Ajoute à la liste existante sans remplacer
+   */
+  loadMore(): void &#123;
+    this.loadingMore.set(true);
+    
+    this.userService.getUsers(10, this.selectedGender()).subscribe(&#123;
+      next: (newUsers) =&gt; &#123;
+        // ✅ .update() = modifier basé sur valeur actuelle
+        this.users.update(current =&gt; [...current, ...newUsers]);
+        this.loadingMore.set(false);
+      &#125;,
+      error: () =&gt; &#123;
+        this.error.set('Erreur lors du chargement');
+        this.loadingMore.set(false);
+      &#125;
+    &#125;);
+  &#125;
+&#125;</code></pre>
+    </div>
+    <div class="explanation">
+      <h3>🔑 Signals - .set() vs .update():</h3>
+      <ul>
+        <li><strong>signal.set(newValue)</strong>: Remplace COMPLÈTEMENT la valeur du signal.
+        <br><em>Quand l'utiliser?</em> Chargement initial, remplacement complet, reset.
+        <br>Exemple: this.users.set(data) → efface tout et met les nouvelles données.
+        <br>Exemple: this.loading.set(true) → change le booléen.
+        <br>Le signal reçoit la nouvelle valeur directement.</li>
+        <li><strong>signal.update(fn)</strong>: Met à jour BASÉ SUR la valeur actuelle.
+        <br><em>Quand l'utiliser?</em> Load More, incrémentation, toggle, ajout à une liste.
+        <br>Exemple: this.users.update(current =&gt; [...current, ...newUsers])
+        <br>La fonction reçoit la valeur actuelle et retourne la nouvelle.
+        <br>Pattern fonctionnel: (oldValue) =&gt; newValue</li>
+        <li><strong>[...current, ...newUsers]</strong>: Spread operator pour fusionner.
+        <br><em>Pourquoi?</em> Crée un NOUVEAU tableau (immutabilité).
+        <br>current = [user1, user2], newUsers = [user3, user4]
+        <br>Résultat = [user1, user2, user3, user4]
+        <br>Angular détecte le changement car c'est une nouvelle référence.</li>
+        <li><strong>loadingMore séparé</strong>: Signal distinct pour le bouton Load More.
+        <br><em>Pourquoi?</em> Ne pas bloquer toute l'interface pendant l'ajout.
+        <br>loading = chargement initial (affiche spinner pleine page).
+        <br>loadingMore = chargement supplémentaire (désactive juste le bouton).
+        <br>Meilleure UX: l'utilisateur voit les données existantes pendant le chargement.</li>
+      </ul>
+      
+      <h3>📊 Comparaison .set() vs .update():</h3>
+      <table>
+        <tr><th>Aspect</th><th>.set(value)</th><th>.update(fn)</th></tr>
+        <tr><td>Syntaxe</td><td>signal.set(newValue)</td><td>signal.update(old =&gt; newValue)</td></tr>
+        <tr><td>Accès valeur actuelle</td><td>❌ Non</td><td>✅ Oui (paramètre fn)</td></tr>
+        <tr><td>Use case</td><td>Remplacement, reset</td><td>Modification, ajout</td></tr>
+        <tr><td>Exemple</td><td>users.set(data)</td><td>users.update(u =&gt; [...u, new])</td></tr>
+        <tr><td>Load More</td><td>❌ Efface l'existant</td><td>✅ Conserve + ajoute</td></tr>
+      </table>
+    </div>
+  </section>
+  
+  <!-- RxJS map() Section -->
+  <section class="step">
+    <h2>🔧 Étape 5: RxJS map() - Transformation de réponse</h2>
+    <div class="code-block">
+      <pre ngNonBindable><code>// Structure de la réponse API complète
+interface RandomUserResponse &#123;
+  results: User[];              // ✅ Ce qu'on veut
+  info: &#123;                       // ❌ Metadata pas nécessaire
+    seed: string;
+    results: number;
+    page: number;
+    version: string;
+  &#125;;
+&#125;
+
+// ✅ Service AVEC map() - Recommandé!
 getUsers(count: number): Observable&lt;User[]&gt; &#123;
   return this.http.get&lt;RandomUserResponse&gt;(this.BASE_URL, &#123; params &#125;)
     .pipe(
-      map(response =&gt; response.results)  // Extrait juste results
+      map(response =&gt; response.results)  // Extrait User[]
     );
 &#125;
 
-// Component reçoit directement User[]
+// Composant reçoit directement User[]
 this.userService.getUsers(10).subscribe(users =&gt; &#123;
-  this.users = users;  // ✅ Déjà transformé!
+  this.users.set(users);  // ✅ Déjà transformé!
 &#125;);
 
-// SANS map() - Moins propre
+// ❌ SANS map() - Moins propre
 getUsers(count: number): Observable&lt;RandomUserResponse&gt; &#123;
   return this.http.get&lt;RandomUserResponse&gt;(this.BASE_URL, &#123; params &#125;);
 &#125;
 
-// Component doit extraire results
+// Composant doit extraire lui-même
 this.userService.getUsers(10).subscribe(response =&gt; &#123;
-  this.users = response.results;  // ❌ Extraction dans le component
+  this.users.set(response.results);  // ❌ Extraction dans le composant
 &#125;);</code></pre>
     </div>
     <div class="explanation">
-      <h3>🔑 Comprendre map():</h3>
+      <h3>🔑 Pourquoi map() dans le service?</h3>
       <ul>
-        <li><strong>map()</strong> - Opérateur RxJS qui transforme chaque valeur émise</li>
-        <li><strong>pipe()</strong> - Permet d'enchaîner plusieurs opérateurs</li>
-        <li><strong>Transformation</strong> - Extrait une partie de la réponse API</li>
-        <li><strong>Type safety</strong> - Observable&lt;User[]&gt; au lieu de Observable&lt;RandomUserResponse&gt;</li>
+        <li><strong>Séparation des préoccupations</strong>: La transformation appartient au service.
+        <br>Le composant ne devrait pas connaître la structure de la réponse API.
+        <br>Si l'API change (response.data au lieu de response.results), un seul fichier à modifier.</li>
+        <li><strong>Réutilisabilité</strong>: Tous les composants reçoivent User[].
+        <br>Pas besoin de répéter .results partout.
+        <br>Cohérence garantie dans toute l'application.</li>
+        <li><strong>Type safety amélioré</strong>: Observable&lt;User[]&gt; est plus précis.
+        <br>Le composant sait exactement ce qu'il reçoit.
+        <br>Autocomplétion et vérification de types optimales.</li>
+        <li><strong>Tests simplifiés</strong>: Mock simple retournant User[].
+        <br>Pas besoin de simuler la structure complète RandomUserResponse.
+        <br>Tests plus lisibles et maintenables.</li>
       </ul>
       
-      <h3>✨ Avantages de map():</h3>
-      <ul>
-        <li>✅ <strong>Séparation des préoccupations</strong>: Transformation dans le service</li>
-        <li>✅ <strong>Réutilisabilité</strong>: Tous les components reçoivent User[]</li>
-        <li>✅ <strong>Code propre</strong>: Component ne connaît pas la structure de la réponse</li>
-        <li>✅ <strong>Tests faciles</strong>: Plus simple à mocker</li>
-      </ul>
+      <h3>⚡ Flux de données avec map():</h3>
+      <div class="diagram">
+        <pre ngNonBindable>
+API Response:
+&#123; results: [user1, user2], info: &#123;...&#125; &#125;
+           │
+           ↓
+    pipe(map(r =&gt; r.results))
+           │
+           ↓
+      [user1, user2]
+           │
+           ↓
+    subscribe(users =&gt; ...)
+           │
+           ↓
+  this.users.set([user1, user2])
+        </pre>
+      </div>
     </div>
   </section>
   
-  <!-- RxJS Subscription Management -->
+  <!-- Step 6 - Template -->
   <section class="step">
-    <h2>🔧 Étape 4c: Gestion des Subscriptions</h2>
+    <h2>📄 Étape 6: Template avec Signals et Control Flow</h2>
     <div class="code-block">
-      <pre ngNonBindable><code>import &#123; Subscription &#125; from 'rxjs';
+      <pre ngNonBindable><code>&lt;!-- Filtres par genre avec Signals --&gt;
+&lt;div class="filter-group"&gt;
+  &lt;label&gt;Filtrer par genre:&lt;/label&gt;
+  &lt;div class="btn-group"&gt;
+    &lt;button 
+      (click)="setGenderFilter(undefined)"
+      [class.active]="!selectedGender()"&gt;
+      Tous
+    &lt;/button&gt;
+    &lt;button 
+      (click)="setGenderFilter('male')"
+      [class.active]="selectedGender() === 'male'"&gt;
+      👨 Hommes
+    &lt;/button&gt;
+    &lt;button 
+      (click)="setGenderFilter('female')"
+      [class.active]="selectedGender() === 'female'"&gt;
+      👩 Femmes
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
 
-export class UsersComponent implements OnDestroy &#123;
-  private subscription?: Subscription;
-  private loadMoreSubscription?: Subscription;
-  
-  loadUsers(): void &#123;
-    // Annuler la requête précédente si elle existe
-    this.subscription?.unsubscribe();
-    
-    this.loading = true;
-    this.subscription = this.userService.getUsers(10, this.selectedGender)
-      .subscribe(&#123;
-        next: (data) =&gt; &#123;
-          this.users = data;
-          this.loading = false;
-        &#125;,
-        error: (err) =&gt; &#123;
-          this.error = err.message;
-          this.loading = false;
-        &#125;
-      &#125;);
+&lt;!-- Filtre par nationalité --&gt;
+&lt;select (change)="setNationalityFilter($event)"&gt;
+  &lt;option value=""&gt;Toutes nationalités&lt;/option&gt;
+  &#64;for (nat of nationalities; track nat.code) &#123;
+    &lt;option [value]="nat.code"&gt;&#123;&#123; nat.flag &#125;&#125; &#123;&#123; nat.name &#125;&#125;&lt;/option&gt;
   &#125;
-  
-  loadMore(): void &#123;
-    this.loadingMore = true;
-    this.loadMoreSubscription = this.userService.getUsers(10, this.selectedGender)
-      .subscribe(&#123;
-        next: (newUsers) =&gt; &#123;
-          this.users = [...this.users, ...newUsers];
-          this.loadingMore = false;
-        &#125;
-      &#125;);
-  &#125;
-  
-  ngOnDestroy(): void &#123;
-    // CRITIQUE: Nettoyer toutes les subscriptions
-    this.subscription?.unsubscribe();
-    this.loadMoreSubscription?.unsubscribe();
-  &#125;
-&#125;</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Concepts Subscription:</h3>
-      <ul>
-        <li><strong>Subscription</strong> - Représente une exécution en cours d'un Observable</li>
-        <li><strong>unsubscribe()</strong> - Annule la subscription et libère les ressources</li>
-        <li><strong>ngOnDestroy()</strong> - Lifecycle hook parfait pour le nettoyage</li>
-        <li><strong>?.</strong> - Optional chaining: unsubscribe seulement si défini</li>
-      </ul>
-      
-      <h3>⚠️ Memory Leaks:</h3>
-      <ul>
-        <li>❌ <strong>Sans unsubscribe</strong>: Subscription continue après destruction du component</li>
-        <li>❌ <strong>Conséquences</strong>: Fuites mémoire, requêtes inutiles, bugs</li>
-        <li>✅ <strong>Solution</strong>: Toujours unsubscribe dans ngOnDestroy()</li>
-        <li>💡 <strong>Alternative</strong>: Utiliser l'opérateur takeUntil() avec un Subject</li>
-      </ul>
-      
-      <h3>🎯 Pattern takeUntil (Avancé):</h3>
-      <pre ngNonBindable><code>private destroy$ = new Subject&lt;void&gt;();
+&lt;/select&gt;
 
-loadUsers(): void &#123;
-  this.userService.getUsers(10)
-    .pipe(takeUntil(this.destroy$))  // Auto-unsubscribe
-    .subscribe(data =&gt; this.users = data);
+&lt;!-- États conditionnels --&gt;
+&#64;if (loading()) &#123;
+  &lt;div class="loading"&gt;⏳ Chargement...&lt;/div&gt;
 &#125;
 
-ngOnDestroy(): void &#123;
-  this.destroy$.next();      // Émet une valeur
-  this.destroy$.complete();  // Complete le Subject
+&#64;if (error()) &#123;
+  &lt;div class="error"&gt;❌ &#123;&#123; error() &#125;&#125;&lt;/div&gt;
+&#125;
+
+&lt;!-- Liste des utilisateurs --&gt;
+&#64;if (!loading() &amp;&amp; users().length &gt; 0) &#123;
+  &lt;h2&gt;📋 &#123;&#123; users().length &#125;&#125; utilisateurs&lt;/h2&gt;
+  
+  &lt;div class="users-grid"&gt;
+    &#64;for (user of users(); track user.login.uuid) &#123;
+      &lt;div class="user-card" [class.male]="user.gender === 'male'"&gt;
+        &lt;img [src]="user.picture.large" [alt]="user.name.first" /&gt;
+        
+        &lt;h3&gt;&#123;&#123; user.name.title &#125;&#125; &#123;&#123; user.name.first &#125;&#125; &#123;&#123; user.name.last &#125;&#125;&lt;/h3&gt;
+        &lt;p class="username"&gt;&#64;&#123;&#123; user.login.username &#125;&#125;&lt;/p&gt;
+        
+        &lt;p&gt;📧 &#123;&#123; user.email &#125;&#125;&lt;/p&gt;
+        &lt;p&gt;📍 &#123;&#123; user.location.city &#125;&#125;, &#123;&#123; user.location.country &#125;&#125;&lt;/p&gt;
+        &lt;p&gt;🎂 &#123;&#123; user.dob.age &#125;&#125; ans&lt;/p&gt;
+      &lt;/div&gt;
+    &#125;
+  &lt;/div&gt;
+  
+  &lt;!-- Bouton Load More --&gt;
+  &lt;button (click)="loadMore()" [disabled]="loadingMore()"&gt;
+    &#64;if (loadingMore()) &#123;
+      Chargement...
+    &#125; &#64;else &#123;
+      ➕ Charger 10 utilisateurs de plus
+    &#125;
+  &lt;/button&gt;
 &#125;</code></pre>
     </div>
-  </section>
-  
-  <!-- Step 6 -->
-  <section class="step">
-    <h2>📄 Étape 5: Template avec filtres</h2>
-    <div class="code-block">
-      <pre ngNonBindable><code>&lt;!-- Filtres --&gt;
-&lt;div class="filters"&gt;
-  &lt;button (click)="setGender(undefined)"&gt;Tous&lt;/button&gt;
-  &lt;button (click)="setGender('male')"&gt;Hommes&lt;/button&gt;
-  &lt;button (click)="setGender('female')"&gt;Femmes&lt;/button&gt;
-&lt;/div&gt;
-
-&lt;!-- Liste --&gt;
-&lt;div class="grid"&gt;
-  &#64;for (user of users; track user.login.uuid) &#123;
-    &lt;div class="card"&gt;
-      &lt;img [src]="user.picture.medium" /&gt;
-      &lt;h3&gt;&#123;&#123; user.name.first &#125;&#125; &#123;&#123; user.name.last &#125;&#125;&lt;/h3&gt;
-      &lt;p&gt;📧 &#123;&#123; user.email &#125;&#125;&lt;/p&gt;
-      &lt;p&gt;📍 &#123;&#123; user.location.city &#125;&#125;, &#123;&#123; user.location.country &#125;&#125;&lt;/p&gt;
-    &lt;/div&gt;
-  &#125;
-&lt;/div&gt;
-
-&lt;!-- Bouton Load More --&gt;
-&lt;button (click)="loadMore()" [disabled]="loading"&gt;
-  &#64;if (loading) &#123;
-    ⏳ Chargement...
-  &#125; &#64;else &#123;
-    ➕ Charger plus
-  &#125;
-&lt;/button&gt;</code></pre>
-    </div>
     <div class="explanation">
-      <h3>🔑 Mots-clés:</h3>
+      <h3>🔑 Mots-clés du template détaillés:</h3>
       <ul>
-        <li><strong>(click)="method()"</strong> - Event binding</li>
-        <li><strong>[disabled]="loading"</strong> - Property binding conditionnel</li>
-        <li><strong>track user.login.uuid</strong> - Clé unique pour performance</li>
-        <li><strong>&#64;if ... &#64;else</strong> - Condition avec alternative</li>
+        <li><strong>[class.active]="condition"</strong>: Class binding conditionnel.
+        <br><em>Pourquoi l'utiliser?</em> Ajoute la classe 'active' si la condition est vraie.
+        <br>selectedGender() lit le signal pour comparer avec la valeur du bouton.
+        <br>Plus propre que [ngClass]="&#123;active: condition&#125;" pour une seule classe.</li>
+        <li><strong>(change)="handler($event)"</strong>: Event binding sur changement de select.
+        <br><em>Pourquoi l'utiliser?</em> Déclenché quand l'utilisateur choisit une option.
+        <br>$event contient l'événement natif, on extrait la valeur dans le handler.
+        <br>Différent de (input) qui se déclenche à chaque frappe.</li>
+        <li><strong>&#64;for ... track user.login.uuid</strong>: Boucle avec tracking par UUID.
+        <br><em>Pourquoi uuid?</em> Identifiant unique garanti par l'API.
+        <br>Angular utilise cette clé pour le DOM diffing optimisé.
+        <br>Si on ajoute 10 users (Load More), seuls les 10 nouveaux sont créés.</li>
+        <li><strong>users()</strong>: Lecture du signal dans le template.
+        <br><em>Pourquoi ()?</em> Le signal est une fonction, on l'appelle pour lire.
+        <br>Angular track cette lecture pour savoir quoi re-rendre.
+        <br>Quand users.set() ou users.update() est appelé, le template se met à jour.</li>
+        <li><strong>[disabled]="loadingMore()"</strong>: Désactive pendant le chargement additionnel.
+        <br><em>Pourquoi loadingMore séparé?</em> Ne bloque pas toute l'interface.
+        <br>L'utilisateur voit les données existantes pendant le chargement.
+        <br>Meilleure UX que de cacher toute la liste.</li>
+        <li><strong>&#64;if (loadingMore()) ... &#64;else</strong>: Condition avec alternative.
+        <br><em>Pourquoi?</em> Affiche "Chargement..." ou "Charger plus" selon l'état.
+        <br>Syntaxe Angular 17+: plus lisible que *ngIf="x; else tpl".
+        <br>Le bloc &#64;else s'affiche quand la condition est fausse.</li>
       </ul>
     </div>
   </section>
   
-  <!-- Step 7 -->
+  <!-- Architecture Diagram -->
   <section class="step">
-    <h2>📊 Construction de l'URL avec HttpParams</h2>
+    <h2>🏗️ Architecture du flux de données</h2>
     <div class="diagram">
       <pre ngNonBindable>
-// Étape par étape:
-
-1. let params = new HttpParams()
-   params = ""
-
-2. params = params.set('results', '10')
-   params = "results=10"
-
-3. params = params.set('gender', 'female')
-   params = "results=10&amp;gender=female"
-
-4. http.get(url, &#123; params &#125;)
-   Requête: https://randomuser.me/api?results=10&amp;gender=female
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         USERS COMPONENT                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│  SIGNALS (État réactif)                                                  │
+│  ┌──────────┐ ┌─────────┐ ┌───────────┐ ┌───────────────┐              │
+│  │ users()  │ │loading()│ │loadingMore│ │selectedGender()│              │
+│  │ User[]   │ │ boolean │ │  boolean  │ │ male|female|? │              │
+│  └──────────┘ └─────────┘ └───────────┘ └───────────────┘              │
+│       ↑            ↑            ↑              ↑                        │
+│       │            │            │              │                        │
+│   .set() ou    .set()       .set()         .set()                       │
+│   .update()                                                              │
+│       ↑                                                                  │
+│  ┌────┴──────────────────────────────────────────────────────────────┐  │
+│  │                         MÉTHODES                                   │  │
+│  │                                                                    │  │
+│  │  loadInitialUsers() ────→ users.set(data)      // Remplacer       │  │
+│  │  loadMore() ────────────→ users.update(...)    // Ajouter         │  │
+│  │  setGenderFilter() ─────→ selectedGender.set() // Changer filtre  │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          USER SERVICE                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  inject(HttpClient)                                                      │
+│                                                                          │
+│  getUsers(count, gender?) ──→ HttpParams construction                   │
+│                               ↓                                          │
+│                          GET ?results=10&amp;gender=female                  │
+│                               ↓                                          │
+│                          pipe(map(r =&gt; r.results))                      │
+│                               ↓                                          │
+│                          Observable&lt;User[]&gt;                             │
+└─────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        RANDOMUSER.ME API                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  https://randomuser.me/api                                               │
+│                                                                          │
+│  QUERY PARAMETERS (après le ?):                                         │
+│    ?results=10         → Nombre d'utilisateurs                          │
+│    &amp;gender=female     → Filtre par genre                               │
+│    &amp;nat=fr            → Filtre par nationalité                         │
+│                                                                          │
+│  Réponse: &#123; results: User[], info: &#123;...&#125; &#125;                           │
+└─────────────────────────────────────────────────────────────────────────┘
       </pre>
-    </div>
-    
-    <div class="warning">
-      <h4>⚠️ Attention: HttpParams est immutable!</h4>
-      <pre ngNonBindable><code>// ❌ INCORRECT
-params.set('results', '10');
-
-// ✅ CORRECT
-params = params.set('results', '10');</code></pre>
     </div>
   </section>
   
   <!-- Summary -->
   <section class="summary">
-    <h2>📋 Résumé des Concepts</h2>
+    <h2>📋 Résumé des Concepts Angular 20</h2>
     <table>
       <tr>
         <th>Concept</th>
+        <th>Syntaxe</th>
         <th>Utilisé pour</th>
       </tr>
       <tr>
+        <td>inject()</td>
+        <td>inject(Service)</td>
+        <td>Injection de dépendances moderne</td>
+      </tr>
+      <tr>
+        <td>signal()</td>
+        <td>signal&lt;T&gt;(value)</td>
+        <td>Gestion d'état réactive</td>
+      </tr>
+      <tr>
+        <td>.set()</td>
+        <td>signal.set(newValue)</td>
+        <td>Remplacer la valeur (refresh)</td>
+      </tr>
+      <tr>
+        <td>.update()</td>
+        <td>signal.update(fn)</td>
+        <td>Modifier basé sur actuel (Load More)</td>
+      </tr>
+      <tr>
         <td>HttpParams</td>
+        <td>new HttpParams().set()</td>
         <td>Construire query parameters</td>
       </tr>
       <tr>
-        <td>[...array, ...new]</td>
-        <td>Ajouter à la liste (Load More)</td>
-      </tr>
-      <tr>
-        <td>property = value</td>
-        <td>Remplacer la liste (filtre)</td>
-      </tr>
-      <tr>
         <td>pipe(map())</td>
+        <td>.pipe(map(r =&gt; r.results))</td>
         <td>Transformer la réponse API</td>
       </tr>
       <tr>
-        <td>[disabled]</td>
-        <td>Désactiver bouton</td>
+        <td>&#64;if / &#64;for</td>
+        <td>&#64;if (cond) &#123; &#125;</td>
+        <td>Control flow moderne</td>
+      </tr>
+      <tr>
+        <td>track</td>
+        <td>track user.login.uuid</td>
+        <td>Optimisation du rendu</td>
       </tr>
     </table>
   </section>
@@ -449,20 +672,41 @@ params = params.set('results', '10');</code></pre>
   <!-- Checklist -->
   <section class="checklist">
     <h2>✅ Points de vérification</h2>
-    <h3>Fonctionnalités:</h3>
+    <h3>Configuration Angular 20:</h3>
     <ul>
-      <li>☐ 10 utilisateurs au chargement</li>
-      <li>☐ "Load More" ajoute 10 utilisateurs</li>
-      <li>☐ Filtre "Hommes" fonctionne</li>
-      <li>☐ Filtre "Femmes" fonctionne</li>
-      <li>☐ Bouton désactivé pendant loading</li>
+      <li>☐ provideHttpClient() dans app.config.ts?</li>
+      <li>☐ RouterLink importé dans le composant standalone?</li>
+    </ul>
+    
+    <h3>Signals:</h3>
+    <ul>
+      <li>☐ Déclaration avec signal&lt;T&gt;(initialValue)?</li>
+      <li>☐ Lecture avec signal() dans le template?</li>
+      <li>☐ .set() pour remplacer, .update() pour ajouter?</li>
+    </ul>
+    
+    <h3>HttpParams:</h3>
+    <ul>
+      <li>☐ Réaffectation: params = params.set(...)?</li>
+      <li>☐ Passage à http.get: &#123; params &#125;?</li>
+    </ul>
+    
+    <h3>Tests fonctionnels:</h3>
+    <ul>
+      <li>☐ 10 utilisateurs au clic sur "Charger"</li>
+      <li>☐ "Load More" ajoute 10 (total 20, 30, etc.)</li>
+      <li>☐ Filtre "Hommes" → que des hommes</li>
+      <li>☐ Filtre "Femmes" → que des femmes</li>
+      <li>☐ Bouton désactivé pendant loadingMore</li>
     </ul>
     
     <h3>Erreurs courantes:</h3>
     <ul>
-      <li>❌ Oublier de réassigner HttpParams</li>
-      <li>❌ Utiliser set() au lieu de update() pour Load More</li>
+      <li>❌ Oublier () pour lire un signal: users vs users()</li>
+      <li>❌ Utiliser .set() au lieu de .update() pour Load More</li>
+      <li>❌ Oublier de réassigner HttpParams (immutable!)</li>
       <li>❌ Oublier track dans &#64;for</li>
+      <li>❌ Oublier pipe(map()) dans le service</li>
     </ul>
   </section>
 </div>

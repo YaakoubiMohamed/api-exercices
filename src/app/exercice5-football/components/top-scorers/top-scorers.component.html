@@ -15,6 +15,15 @@
             @if (scorer.assists !== null) {
               <span class="assists">{{ scorer.assists }} 🅰️</span>
             }
+            @else {
+              <span class="assists">0 🅰️</span>
+            }
+            @if (scorer.penalties !== null) {
+              <span class="penalties">{{ scorer.penalties }} </span>
+            }
+            @else {
+              <span class="penalties">0 </span>
+            }
           </div>
         </li>
       }

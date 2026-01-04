@@ -104,6 +104,7 @@ export class FootballComponent {
     // Load top scorers
     this.footballService.getTopScorers(competitionCode).subscribe({
       next: (response) => {
+        console.log(response.scorers);
         this.scorers.set(response.scorers);
         this.loading.set(false);
       },

@@ -2,22 +2,20 @@
   <header>
     <a routerLink="/football" class="back-link">← Retour à l'exercice</a>
     <h1>📚 Exercice 5 - Explication Détaillée</h1>
-    <p class="subtitle">Comment consommer une API REST avec Angular</p>
+    <p class="subtitle">API REST, Signals & Modern Angular</p>
   </header>
-  
+
   <!-- Step 1 -->
   <section class="step">
-    <h2>� Structure des fichiers</h2>
+    <h2>📁 Structure des fichiers</h2>
     <div class="code-block">
       <pre ngNonBindable><code>exercice5-football/
 ├── football/
-│   ├── football.component.ts      # Composant principal
+│   ├── football.component.ts      # Composant principal (Signals)
 │   ├── football.component.html    # Template HTML
 │   └── football.component.css     # Styles CSS
 ├── football-explanation/
 │   └── ...                        # Composant d'explication
-├── football-explanation-visual/
-│   └── ...                        # Composant d'explication visuelle
 ├── components/
 │   ├── competition-selector/      # Composant sélecteur
 │   ├── standings-table/           # Composant tableau
@@ -25,13 +23,13 @@
 ├── models/
 │   └── football.model.ts          # Interfaces TypeScript
 └── services/
-    └── football.service.ts        # Service HTTP</code></pre>
+    └── football.service.ts        # Service HTTP (inject)</code></pre>
     </div>
   </section>
 
   <!-- Step 2 -->
   <section class="step">
-    <h2>�🔷 Étape 1: Configuration de HttpClient</h2>
+    <h2>🔷 Étape 1: Configuration de HttpClient</h2>
     <div class="code-block">
       <pre ngNonBindable><code>// app.config.ts
 import &#123; provideHttpClient &#125; from '&#64;angular/common/http';
@@ -45,300 +43,199 @@ export const appConfig: ApplicationConfig = &#123;
     <div class="explanation">
       <h3>🔑 Mots-clés détaillés:</h3>
       <ul>
-        <li><strong>provideHttpClient()</strong>: Fonction qui configure et active le module HttpClient dans toute l'application. 
-        Sans cet appel dans app.config.ts, vous ne pourrez pas utiliser HttpClient dans vos services. 
-        C'est l'équivalent moderne de l'ancien HttpClientModule dans les applications standalone.</li>
-        <li><strong>ApplicationConfig</strong>: Interface TypeScript qui définit la configuration globale de votre application Angular. 
-        Le tableau 'providers' contient tous les services et configurations disponibles dans toute l'application. 
-        C'est ici qu'on configure les éléments transversaux comme HTTP, routing, animations, etc.</li>
+        <li><strong>provideHttpClient()</strong>: Fonction qui configure et active le module HttpClient dans toute
+          l'application.
+          Sans cet appel dans app.config.ts, vous ne pourrez pas utiliser HttpClient dans vos services.
+          C'est l'équivalent moderne de l'ancien HttpClientModule dans les applications standalone.</li>
       </ul>
     </div>
   </section>
-  
-  <!-- Step 2 -->
-  <section class="step">
-    <h2>🔷 Étape 2: Créer les Interfaces (Models)</h2>
-    <div class="code-block">
-      <pre ngNonBindable><code>// models/football.model.ts
-export interface Team &#123;
-  id: number;          // Identifiant unique
-  name: string;        // Nom complet
-  shortName: string;   // Nom court
-  crest: string | null; // URL du logo (peut être null)
-&#125;
 
-// string | null = Type Union (peut être string OU null)</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Pourquoi des interfaces? (Explications détaillées)</h3>
-      <ul>
-        <li><strong>Typage fort (Type Safety)</strong>: TypeScript vérifie que vous utilisez les bonnes propriétés avec les bons types. 
-        Par exemple, si vous essayez d'accéder à team.namee (avec faute), TypeScript vous alertera immédiatement. 
-        Cela évite les erreurs à l'exécution qui sont difficiles à débugger.</li>
-        <li><strong>Autocomplétion intelligente (IntelliSense)</strong>: Quand vous tapez 'team.', VS Code affiche automatiquement toutes les propriétés disponibles (id, name, shortName, crest). 
-        Cela accélère le développement et réduit les erreurs de frappe.</li>
-        <li><strong>Documentation vivante</strong>: Les interfaces servent de documentation technique. Un développeur qui rejoint le projet peut voir immédiatement la structure des données. 
-        C'est mieux qu'un commentaire car c'est vérifié par le compilateur.</li>
-        <li><strong>Refactoring sécurisé</strong>: Si vous renommez une propriété dans l'interface, TypeScript vous montrera tous les endroits du code qui doivent être mis à jour. 
-        Sans interface, vous devriez chercher manuellement dans tout le code.</li>
-      </ul>
-    </div>
-  </section>
-  
   <!-- Step 3 -->
   <section class="step">
-    <h2>🔷 Étape 3: Créer le Service</h2>
+    <h2>🔷 Étape 2: Service avec <code>inject()</code></h2>
     <div class="code-block">
       <pre ngNonBindable><code>// services/football.service.ts
-import &#123; Injectable &#125; from '&#64;angular/core';
-import &#123; HttpClient &#125; from '&#64;angular/common/http';
-import &#123; Observable &#125; from 'rxjs';
+import &#123; Injectable, inject &#125; from '&#64;angular/core';
+import &#123; HttpClient, HttpHeaders &#125; from '&#64;angular/common/http';
 
 &#64;Injectable(&#123; providedIn: 'root' &#125;)
 export class FootballService &#123;
-  // Constructor injection: Traditional Angular DI
-  constructor(private readonly http: HttpClient) &#123;&#125;
+  // ✅ Modern DI: inject() remplace le constructeur
+  private readonly http = inject(HttpClient);
   
-  getStandings(): Observable&lt;StandingsResponse&gt; &#123;
-    return this.http.get&lt;StandingsResponse&gt;(url);
+  private readonly headers = new HttpHeaders(&#123;
+    'X-Auth-Token': 'VOTRE_API_KEY'
+  &#125;);
+  
+  getStandings(code: string): Observable&lt;StandingsResponse&gt; &#123;
+    return this.http.get&lt;StandingsResponse&gt;(url, &#123; headers: this.headers &#125;);
   &#125;
 &#125;</code></pre>
     </div>
     <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
+      <h3>🔑 Pourquoi <code>inject()</code> ?</h3>
       <ul>
-        <li><strong>@Injectable()</strong>: Décorateur Angular qui marque une classe comme étant injectable dans le système de Dependency Injection. 
-        Cela signifie qu'Angular peut créer des instances de ce service et les fournir automatiquement aux composants qui en ont besoin. 
-        Sans ce décorateur, vous ne pourriez pas injecter le service.</li>
-        <li><strong>providedIn: 'root'</strong>: Configure le service comme un Singleton au niveau de l'application entière. 
-        Une seule instance du service est créée et partagée par tous les composants. Cela économise la mémoire et permet de partager l'état. 
-        C'est l'approche moderne recommandée qui remplace l'ancien système de providers dans les modules.</li>
-        <li><strong>constructor()</strong>: Méthode spéciale appelée automatiquement par Angular lors de la création du service. 
-        C'est ici qu'on déclare les dépendances (comme HttpClient) que Angular injectera automatiquement. 
-        Le mot-clé 'private' crée automatiquement une propriété de classe accessible via 'this.http'.</li>
-        <li><strong>private readonly</strong>: 'private' signifie que la propriété n'est accessible que dans cette classe (encapsulation). 
-        'readonly' empêche toute réassignation après l'initialisation, garantissant l'immutabilité et évitant les bugs. 
-        Ces deux mots-clés ensemble créent un code plus sûr et maintenable.</li>
-        <li><strong>Observable&lt;T&gt;</strong>: Type RxJS représentant un flux de données asynchrones. C'est comme une Promise mais plus puissant: 
-        peut émettre plusieurs valeurs dans le temps, supporte l'annulation (unsubscribe), et permet des transformations chainées avec les opérateurs. 
-        Le &lt;T&gt; définit le type des données émises (ex: Observable&lt;User[]&gt; émettra un tableau d'utilisateurs).</li>
-        <li><strong>http.get&lt;T&gt;()</strong>: Méthode qui effectue une requête HTTP GET et retourne un Observable. 
-        Le &lt;T&gt; spécifie le type attendu de la réponse JSON. Angular déserializera automatiquement le JSON en objet TypeScript typé. 
-        Par exemple, get&lt;User[]&gt;() retourne Observable&lt;User[]&gt;, garantissant la sécurité des types.</li>
+        <li><strong>Plus propre</strong>: Évite d'avoir un constructeur encombré de paramètres.</li>
+        <li><strong>Type-safe</strong>: TypeScript infère automatiquement le type du service injecté.</li>
+        <li><strong>Fonctionnel</strong>: Utilisable en dehors des classes (dans des fonctions, guards, resolvers).</li>
+        <li><strong>Standard</strong>: C'est la méthode recommandée depuis Angular 14+.</li>
       </ul>
     </div>
   </section>
-  
-  <!-- Step 4 -->
-  <section class="step">
-    <h2>🔷 Étape 4: Utiliser le Service dans un Composant</h2>
+
+  <!-- Step 4: SIGNALS DEEP DIVE -->
+  <section class="step highlight-section">
+    <h2>🚀 Étape 3: Gestion d'État avec Signals</h2>
+    <p>Angular 16+ introduit les <strong>Signals</strong>, une nouvelle façon de gérer l'état réactif. C'est le cœur de
+      cet exercice.</p>
+
     <div class="code-block">
       <pre ngNonBindable><code>// football.component.ts
-import &#123; Component &#125; from '&#64;angular/core';
+import &#123; Component, inject, signal &#125; from '&#64;angular/core';
 
 export class FootballComponent &#123;
-  // Constructor injection
-  constructor(private readonly service: FootballService) &#123;&#125;
+  // 1. Déclaration (Lecture seule pour l'extérieur)
+  readonly standings = signal&lt;TeamStanding[]&gt;([]);
+  readonly loading = signal(false);
   
-  // Regular properties for state management
-  standings: TeamStanding[] = [];
-  loading: boolean = false;
+  // 2. Mise à jour avec .set()
+  updateData(newData: TeamStanding[]) &#123;
+    this.standings.set(newData); // Remplace la valeur
+  &#125;
   
-  loadData(): void &#123;
-    this.loading = true;
-    
-    this.service.getStandings('PL').subscribe(&#123;
-      next: (response) => &#123;
-        this.standings = response.standings;
-        this.loading = false;
-      &#125;,
-      error: (err) => &#123;
-        console.error(err);
-        this.loading = false;
-      &#125;
-    &#125;);
+  // 3. Mise à jour avec .update()
+  toggleLoading() &#123;
+    this.loading.update(v =&gt; !v); // Basé sur la valeur précédente
   &#125;
 &#125;</code></pre>
     </div>
+
     <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
-      <ul>
-        <li><strong>constructor()</strong>: Point d'entrée pour l'injection de dépendances dans Angular. 
-        Toutes les dépendances déclarées ici (comme FootballService) sont automatiquement instanciées et injectées par Angular. 
-        C'est la méthode traditionnelle et recommandée qui rend le code explicite et testable.</li>
-        <li><strong>property: Type = value</strong>: Déclaration TypeScript complète d'une propriété. 
-        'property' est le nom, 'Type' spécifie le type (string, number, User[], etc.), '= value' définit la valeur initiale. 
-        Cette syntaxe garantit la sécurité des types et facilite la compréhension du code.</li>
-        <li><strong>this.property = value</strong>: Affectation directe qui met à jour la valeur d'une propriété. 
-        Angular détecte automatiquement ce changement et met à jour la vue (template) correspondante. 
-        C'est la méthode traditionnelle de gestion d'état, simple et efficace.</li>
-        <li><strong>subscribe()</strong>: Méthode qui déclenche l'exécution d'un Observable (flux RxJS). 
-        Avant subscribe(), l'Observable est 'froid' (lazy) et ne fait rien. Après subscribe(), la requête HTTP est lancée. 
-        On fournit des callbacks (next, error) pour réagir aux événements du flux.</li>
-        <li><strong>next</strong>: Callback appelé quand l'Observable émet une valeur avec succès. 
-        Pour une requête HTTP GET, c'est ici que vous recevez les données de la réponse. 
-        C'est l'équivalent du 'then()' d'une Promise. Vous mettez à jour votre état ici.</li>
-        <li><strong>error</strong>: Callback appelé si une erreur se produit (réseau, serveur 404/500, timeout, etc.). 
-        C'est ici que vous gérez les erreurs: afficher un message, logger, définir une valeur par défaut. 
-        C'est l'équivalent du 'catch()' d'une Promise. Toujours gérer les erreurs pour une bonne UX!</li>
-      </ul>
+      <h3>🔑 Concepts Signals Détaillés:</h3>
+
+      <div class="concept-card">
+        <h4>📡 <code>signal(initialValue)</code></h4>
+        <p>Crée un conteneur réactif ("wrapper") autour d'une valeur. Angular sait exactement où ce signal est utilisé
+          et ne met à jour QUE les parties de l'interface qui en ont besoin.</p>
+        <p><em>Exemple:</em> <code>count = signal(0)</code></p>
+      </div>
+
+      <div class="concept-card">
+        <h4>✍️ <code>.set(newValue)</code></h4>
+        <p>Remplace complètement la valeur du signal. Utilisez-le quand la nouvelle valeur ne dépend pas de l'ancienne
+          (ex: charger des données API).</p>
+        <p><em>Exemple:</em> <code>this.standings.set(apiData)</code></p>
+      </div>
+
+      <div class="concept-card">
+        <h4>🔄 <code>.update(fn)</code></h4>
+        <p>Met à jour la valeur en se basant sur la valeur actuelle. Idéal pour incrémenter, ajouter à une liste, ou
+          basculer un booléen.</p>
+        <p><em>Exemple:</em> <code>this.count.update(n => n + 1)</code></p>
+      </div>
+
+      <div class="concept-card">
+        <h4>👀 <code>value()</code> (Lecture)</h4>
+        <p>Pour lire la valeur d'un signal (dans le code ou le template), on l'appelle comme une fonction. Cela crée une
+          dépendance réactive.</p>
+        <p><em>Exemple:</em> <code>console.log(this.count())</code> ou <code ngNonBindable>&#123;&#123; count() &#125;&#125;</code>
+        </p>
+      </div>
     </div>
   </section>
-  
+
   <!-- Step 5 -->
   <section class="step">
-    <h2>🔷 Étape 5: Afficher les Données dans le Template</h2>
+    <h2>🔷 Étape 4: Utilisation dans le Template</h2>
     <div class="code-block">
-      <pre ngNonBindable><code>&lt;!-- Template avec nouveau control flow --&gt;
+      <pre ngNonBindable><code>&lt;!-- Template avec Signals et Control Flow --&gt;
+
+&lt;!-- Lecture du signal avec les parenthèses () --&gt;
 &#64;if (loading()) &#123;
-  &lt;p&gt;Chargement...&lt;/p&gt;
+  &lt;div class="loader"&gt;Chargement...&lt;/div&gt;
 &#125;
 
-&#64;if (standings().length &gt; 0) &#123;
-  &#64;for (team of standings; track team.id) &#123;
-    &lt;div&gt;&#123;&#123; team.name &#125;&#125;&lt;/div&gt;
-  &#125;
-&#125; &#64;else &#123;
-  &lt;p&gt;Aucune donnée&lt;/p&gt;
+&#64;if (error()) &#123;
+  &lt;div class="error"&gt;&#123;&#123; error() &#125;&#125;&lt;/div&gt;
+&#125;
+
+&lt;!-- Utilisation directe du signal dans la boucle --&gt;
+&#64;for (team of standings(); track team.id) &#123;
+  &lt;div class="team-row"&gt;
+    &lt;span&gt;&#123;&#123; team.position &#125;&#125;&lt;/span&gt;
+    &lt;span&gt;&#123;&#123; team.name &#125;&#125;&lt;/span&gt;
+  &lt;/div&gt;
 &#125;</code></pre>
     </div>
     <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
+      <h3>🔑 Points Clés:</h3>
       <ul>
-        <li><strong>&#64;if</strong>: Nouvelle syntaxe de condition Angular 17+ qui remplace *ngIf. 
-        Plus lisible et performante, elle permet de conditionner l'affichage d'éléments dans le template. 
-        Si la condition est false, l'élément n'est même pas créé dans le DOM (contrairement à [hidden] qui le cache seulement).</li>
-        <li><strong>&#64;for</strong>: Nouvelle syntaxe de boucle Angular 17+ qui remplace *ngFor. 
-        Itère sur un tableau et crée un élément DOM pour chaque item. 
-        Plus performante et offre une meilleure détection des erreurs au moment de la compilation.</li>
-        <li><strong>track</strong>: Identifiant unique pour chaque élément de la boucle (obligatoire avec &#64;for). 
-        Angular l'utilise pour optimiser le rendu: quand les données changent, Angular sait quels éléments réutiliser, mettre à jour ou détruire. 
-        Utilisez une propriété unique comme 'id' ou 'uuid'. Sans track, les performances seraient dégradées sur les grandes listes.</li>
-        <li><strong>property</strong>: Accès direct aux propriétés publiques du composant depuis le template. 
-        Le template est lié (data binding) au composant: quand une propriété change dans le code, la vue se met à jour automatiquement. 
-        Pas besoin d'appeler une fonction comme property(), accédez directement à la valeur.</li>
-        <li><strong ngNonBindable>{{ }}</strong>: Interpolation - syntaxe pour afficher des valeurs dans le HTML. 
-        Angular évalue l'expression TypeScript entre les accolades et insère le résultat comme texte dans le DOM. 
-        Exemple: <code ngNonBindable>{{ user.name }}</code> affiche le nom, <code ngNonBindable>{{ price * 1.2 }}</code> calcule et affiche le prix TTC.</li>
+        <li><strong><code>loading()</code></strong>: Les parenthèses sont obligatoires pour lire la valeur. Si vous
+          oubliez les (), vous affichez l'objet Signal lui-même !</li>
+        <li><strong>Fine-Grained Reactivity</strong>: Quand <code>loading</code> change, Angular met à jour
+          <em>uniquement</em> ce bloc <code>&#64;if</code>, sans re-vérifier tout l'arbre de composants. C'est beaucoup
+          plus performant que l'ancien système (Zone.js).</li>
       </ul>
     </div>
   </section>
-  
-  <!-- RxJS Explanation -->
+
+  <!-- RxJS Integration -->
   <section class="step">
-    <h2>🔷 Étape 6: Comprendre RxJS et les Observables</h2>
+    <h2>🔷 Étape 5: Connecter RxJS (Service) et Signals (Component)</h2>
+    <p>C'est le pattern le plus courant aujourd'hui : utiliser RxJS pour les événements asynchrones (HTTP) et Signals
+      pour l'état synchrone (Vue).</p>
     <div class="code-block">
-      <pre ngNonBindable><code>// RxJS: Reactive Extensions for JavaScript
-import &#123; Observable &#125; from 'rxjs';
-import &#123; map, catchError, finalize &#125; from 'rxjs/operators';
-
-// Service retourne un Observable
-getStandings(): Observable&lt;StandingsResponse&gt; &#123;
-  return this.http.get&lt;StandingsResponse&gt;(url).pipe(
-    map(data =&gt; data.standings[0].table),  // Transforme
-    catchError(error =&gt; of([])),            // Gère erreurs
-    finalize(() =&gt; console.log('Done'))     // Toujours exécuté
-  );
-&#125;
-
-// Component s'abonne
-this.service.getStandings().subscribe(&#123;
-  next: (data) =&gt; this.standings = data,
-  error: (err) =&gt; this.error = err.message
-&#125;);</code></pre>
-    </div>
-    <div class="explanation">
-      <h3>🔑 Mots-clés RxJS détaillés:</h3>
-      <ul>
-        <li><strong>Observable</strong>: Concept central de RxJS représentant un flux (stream) de données asynchrones dans le temps. 
-        Contrairement à une Promise qui émet une seule valeur, un Observable peut émettre zéro, une ou plusieurs valeurs. 
-        Exemple: Une requête HTTP émet une valeur (la réponse), un websocket émet continuellement des messages. 
-        Les Observables sont 'lazy' (paresseux): le code ne s'exécute que quand quelqu'un s'abonne avec subscribe().</li>
-        <li><strong>pipe()</strong>: Méthode qui permet d'enchaîner plusieurs opérateurs RxJS pour transformer, filtrer ou gérer le flux de données. 
-        Chaque opérateur dans le pipe reçoit les données, les transforme, et passe le résultat à l'opérateur suivant. 
-        C'est comme une chaîne de production où chaque étape traite les données. Syntaxe: observable.pipe(op1(), op2(), op3()).</li>
-        <li><strong>map()</strong>: Opérateur RxJS qui transforme chaque valeur émise par l'Observable. 
-        Similaire à Array.map(), il prend une fonction de transformation et applique cette fonction à chaque émission. 
-        Exemple: map(response => response.data) extrait la propriété 'data' de chaque réponse. 
-        Très utile pour extraire des données spécifiques de réponses API complexes.</li>
-        <li><strong>catchError()</strong>: Opérateur RxJS qui intercepte les erreurs dans le flux Observable. 
-        Quand une erreur se produit, catchError() peut la gérer et retourner un Observable de remplacement (fallback). 
-        Exemple: catchError(error => of([])) retourne un tableau vide en cas d'erreur au lieu de casser l'application. 
-        Permet de gérer les erreurs de manière déclarative directement dans le flux.</li>
-        <li><strong>finalize()</strong>: Opérateur RxJS qui exécute du code de nettoyage après que l'Observable se termine (avec succès ou erreur). 
-        Similaire au bloc 'finally' en try/catch, il est toujours exécuté. 
-        Parfait pour désactiver un indicateur de chargement: finalize(() => this.loading = false). 
-        Garantit que le code de nettoyage s'exécute dans tous les cas.</li>
-        <li><strong>subscribe()</strong>: Méthode qui active l'Observable et commence à écouter ses émissions. 
-        Prend jusqu'à 3 callbacks: next (données), error (erreurs), complete (fin du flux). 
-        subscribe() retourne un objet Subscription qui peut être utilisé pour unsubscribe() et annuler l'écoute. 
-        C'est le point final du flux RxJS où vous recevez effectivement les données.</li>
-        <li><strong>Subscription</strong>: Objet retourné par subscribe() représentant une exécution active d'un Observable. 
-        Conservez cette référence pour pouvoir annuler l'écoute plus tard avec unsubscribe(). 
-        Exemple: private sub = this.http.get().subscribe(...); puis dans ngOnDestroy: this.sub.unsubscribe(). 
-        Essentiel pour éviter les fuites mémoire et les comportements inattendus.</li>
-        <li><strong>unsubscribe()</strong>: Méthode appelée sur une Subscription pour annuler l'écoute et libérer les ressources. 
-        CRITIQUE pour éviter les memory leaks: Sans unsubscribe(), le composant détruit continue d'écouter l'Observable. 
-        Appelez toujours unsubscribe() dans ngOnDestroy(). Alternative moderne: utiliser l'opérateur takeUntil() avec un Subject. 
-        Règle d'or: Si vous subscribe(), vous devez unsubscribe() (sauf pour les HTTP requests qui se completent automatiquement).</li>
-      </ul>
-      
-      <h3>⚠️ Important: Memory Leaks</h3>
-      <p>Sans unsubscribe(), votre composant continue d'écouter l'Observable même après sa destruction. 
-      Cela cause des fuites mémoire (memory leaks) car l'ancien composant reste en mémoire. 
-      Sur une Single Page Application, après plusieurs navigations, cela peut ralentir sérieusement l'application. 
-      TOUJOURS implémenter ngOnDestroy() pour nettoyer vos subscriptions!</p>
-      <p>Toujours nettoyer les subscriptions:</p>
-      <pre ngNonBindable><code>private subscription?: Subscription;
-
-ngOnInit() &#123;
-  this.subscription = this.service.getStandings()
-    .subscribe(data =&gt; this.standings = data);
-&#125;
-
-ngOnDestroy() &#123;
-  // CRITIQUE: évite les fuites mémoire
-  this.subscription?.unsubscribe();
+      <pre ngNonBindable><code>loadData() &#123;
+  this.loading.set(true); // 1. Signal: UI affiche loader
+  
+  // 2. RxJS: Appel HTTP
+  this.service.getStandings().subscribe(&#123;
+    next: (data) =&gt; &#123;
+      // 3. Signal: Mise à jour des données
+      this.standings.set(data);
+      this.loading.set(false);
+    &#125;,
+    error: (err) =&gt; &#123;
+      this.error.set(err.message);
+      this.loading.set(false);
+    &#125;
+  &#125;);
 &#125;</code></pre>
     </div>
   </section>
-  
+
   <!-- Summary -->
   <section class="summary">
-    <h2>📋 Résumé des Concepts</h2>
+    <h2>📋 Résumé: RxJS vs Signals</h2>
     <table>
       <thead>
         <tr>
-          <th>Concept</th>
-          <th>Rôle</th>
-          <th>Analogie</th>
+          <th>Caractéristique</th>
+          <th>RxJS (Observables)</th>
+          <th>Signals</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>HttpClient</strong></td>
-          <td>Moteur de requêtes</td>
-          <td>Le téléphone pour appeler le serveur</td>
+          <td><strong>Utilisation principale</strong></td>
+          <td>Événements asynchrones (HTTP, Timers)</td>
+          <td>Gestion d'état synchrone (UI State)</td>
         </tr>
         <tr>
-          <td><strong>Service</strong></td>
-          <td>Logique de données</td>
-          <td>Le secrétaire qui gère les appels</td>
+          <td><strong>Valeur</strong></td>
+          <td>Flux de valeurs dans le temps</td>
+          <td>Détient toujours une valeur courante</td>
         </tr>
         <tr>
-          <td><strong>Observable</strong></td>
-          <td>Flux asynchrone</td>
-          <td>Le tuyau où l'eau (données) va couler</td>
+          <td><strong>Accès</strong></td>
+          <td>Nécessite <code>subscribe()</code></td>
+          <td>Accès direct via <code>value()</code></td>
         </tr>
         <tr>
-          <td><strong>Subscribe</strong></td>
-          <td>Activation du flux</td>
-          <td>Ouvrir le robinet</td>
-        </tr>
-        <tr>
-          <td><strong>Unsubscribe</strong></td>
-          <td>Nettoyage</td>
-          <td>Fermer le robinet pour éviter l'inondation</td>
+          <td><strong>Dans ce projet</strong></td>
+          <td>Utilisé dans le <strong>Service</strong></td>
+          <td>Utilisé dans le <strong>Component</strong></td>
         </tr>
       </tbody>
     </table>

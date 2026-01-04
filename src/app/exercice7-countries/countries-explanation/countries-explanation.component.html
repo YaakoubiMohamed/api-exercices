@@ -2,7 +2,7 @@
   <header>
     <a routerLink="/countries" class="back-link">← Retour à l'exercice</a>
     <h1>📚 Exercice 7 - Explication Détaillée</h1>
-    <p class="subtitle">Comment rechercher des pays avec une API REST</p>
+    <p class="subtitle">Path Parameters et gestion d'état avec Signals (Angular 20)</p>
   </header>
   
   <!-- Step 1 -->
@@ -10,12 +10,45 @@
     <h2>🎯 Objectif de l'exercice</h2>
     <p>
       Créer une application Angular pour rechercher et afficher des informations 
-      sur les pays du monde en utilisant l'API REST Countries.
+      sur les pays du monde en utilisant l'API REST Countries avec des <strong>Path Parameters</strong>.
     </p>
     <div class="api-info">
       <strong>API utilisée:</strong> REST Countries<br>
       <strong>URL de base:</strong> https://restcountries.com/v3.1<br>
-      <strong>Authentification:</strong> ❌ Aucune clé API requise !
+      <strong>Authentification:</strong> ❌ Aucune clé API requise !<br>
+      <strong>Concept clé:</strong> 🔗 Path Parameters (paramètres dans l'URL)
+    </div>
+    
+    <div class="explanation">
+      <h3>🔗 Qu'est-ce qu'un Path Parameter?</h3>
+      <ul>
+        <li><strong>Path Parameter</strong>: Valeur dynamique intégrée directement dans le chemin de l'URL.
+        Contrairement aux Query Parameters (?key=value), les Path Parameters font partie du chemin lui-même.
+        <br>Exemple: <code>/name/france</code> → 'france' est le path parameter.
+        <br>Utilisé quand le paramètre identifie une ressource spécifique (pays, utilisateur, produit).</li>
+        <li><strong>Endpoints de l'exercice:</strong>
+        <br>• <code>/v3.1/name/&#123;name&#125;</code> → Recherche par nom
+        <br>• <code>/v3.1/region/&#123;region&#125;</code> → Filtre par région
+        <br>• <code>/v3.1/all</code> → Tous les pays</li>
+      </ul>
+    </div>
+  </section>
+  
+  <!-- Angular 20 Architecture -->
+  <section class="step">
+    <h2>🏗️ Architecture Angular 20</h2>
+    <div class="explanation">
+      <h3>📐 Pattern moderne utilisé dans cet exercice:</h3>
+      <ul>
+        <li><strong>inject()</strong>: Nouvelle injection de dépendances fonctionnelle (remplace constructor).
+        Plus concis, plus lisible, et compatible avec les fonctions standalone.</li>
+        <li><strong>signal()</strong>: Gestion d'état réactive native Angular (remplace les propriétés simples).
+        Détection de changement automatique et optimisée, plus performant que Zone.js.</li>
+        <li><strong>&#64;if / &#64;for</strong>: Nouveau control flow Angular 17+ (remplace *ngIf / *ngFor).
+        Syntaxe plus claire, meilleure performance, et typage amélioré.</li>
+        <li><strong>standalone: true</strong>: Composants autonomes sans NgModule.
+        Architecture simplifiée, tree-shaking optimal, imports explicites.</li>
+      </ul>
     </div>
   </section>
   
@@ -25,8 +58,8 @@
     <div class="code-block">
       <pre ngNonBindable><code ngNonBindable>exercice7-countries/
 ├── countries/
-│   ├── countries.component.ts     # Composant principal
-│   ├── countries.component.html   # Template HTML
+│   ├── countries.component.ts     # Composant avec Signals + inject()
+│   ├── countries.component.html   # Template avec &#64;if/&#64;for
 │   └── countries.component.css    # Styles CSS
 ├── countries-explanation/
 │   └── ...                        # Composant d'explication
@@ -35,7 +68,7 @@
 ├── models/
 │   └── country.model.ts           # Interfaces TypeScript
 └── services/
-    └── country.service.ts         # Service HTTP</code></pre>
+    └── country.service.ts         # Service avec inject() + catchError</code></pre>
     </div>
   </section>
   
@@ -47,63 +80,93 @@
 export interface Country &#123;
   name: &#123;
     common: string;      // Nom commun (ex: "France")
-    official: string;    // Nom officiel
+    official: string;    // Nom officiel (ex: "French Republic")
   &#125;;
-  capital?: string[];    // Capitale(s) - optionnel
+  capital?: string[];    // Capitale(s) - optionnel car certains pays n'en ont pas
   population: number;    // Population
+  area: number;          // Superficie en km²
   region: string;        // Région (ex: "Europe")
+  subregion?: string;    // Sous-région (ex: "Western Europe")
   flags: &#123;
-    png: string;         // URL du drapeau
-    svg: string;
+    png: string;         // URL du drapeau PNG
+    svg: string;         // URL du drapeau SVG (meilleure qualité)
+    alt?: string;        // Texte alternatif pour accessibilité
   &#125;;
-  languages?: &#123;          // Langues (clés dynamiques)
+  languages?: &#123;          // Langues parlées (clés dynamiques)
     [key: string]: string;
+  &#125;;
+  maps: &#123;
+    googleMaps: string;  // Lien Google Maps
   &#125;;
 &#125;</code></pre>
     </div>
     <div class="explanation">
       <h3>🔑 Mots-clés TypeScript détaillés:</h3>
       <ul>
-        <li><strong>?</strong> (propriété optionnelle): Indique qu'une propriété peut exister ou être undefined. 
-        Exemple: capital?: string[] signifie que certains pays peuvent ne pas avoir de capitale dans les données API. 
-        Vous devez vérifier son existence avant utilisation: country.capital?.[0] ou country.capital || 'N/A'. 
-        Sans le '?', TypeScript générerait une erreur si la propriété est absente.</li>
-        <li><strong>[key: string]: string</strong> (Index Signature): Définit un objet avec des clés dynamiques inconnus à l'avance. 
-        Exemple pour languages: &#123; "fra": "French", "eng": "English" &#125; - les clés (fra, eng) varient selon le pays. 
-        'key' peut être n'importe quelle chaîne, la valeur sera toujours un string. 
-        Permet de modéliser des structures JSON flexibles où les noms de propriétés ne sont pas connus à l'avance.</li>
-        <li><strong>string[]</strong> (tableau typé): Définit un tableau contenant uniquement des chaînes de caractères. 
-        TypeScript vérifiera que vous n'ajoutez que des strings: capitals.push('Paris') ✅, capitals.push(123) ❌. 
-        Vous bénéficiez de toutes les méthodes de tableau (map, filter, find) avec autocomplétion et vérification de types. 
-        Alternative: Array&lt;string&gt; est équivalent mais string[] est plus concis.</li>
+        <li><strong>interface</strong>: Définit un contrat de structure pour les objets TypeScript.
+        <br><em>Pourquoi l'utiliser?</em> Garantit que les données API correspondent à la structure attendue.
+        TypeScript vérifiera à la compilation que vous accédez uniquement aux propriétés définies.
+        Permet l'autocomplétion VS Code: tapez 'country.' et voyez toutes les propriétés disponibles.
+        Les erreurs de typo sont détectées immédiatement: country.naem génère une erreur.</li>
+        <li><strong>?</strong> (propriété optionnelle): Indique qu'une propriété peut exister ou être undefined.
+        <br><em>Pourquoi l'utiliser?</em> L'API REST Countries ne retourne pas toujours toutes les propriétés.
+        Exemple: capital?: string[] car certains pays (comme l'Antarctique) n'ont pas de capitale.
+        Vous devez vérifier son existence avant utilisation: country.capital?.[0] retourne undefined si absent.
+        Sans le '?', TypeScript générerait une erreur si la propriété est absente dans les données.</li>
+        <li><strong>[key: string]: string</strong> (Index Signature): Objet avec clés dynamiques inconnues à l'avance.
+        <br><em>Pourquoi l'utiliser?</em> Les langues varient selon le pays: &#123; "fra": "French", "eng": "English" &#125;.
+        Les codes de langue (fra, eng, deu) sont différents pour chaque pays et inconnus à la compilation.
+        Permet de modéliser des structures JSON flexibles sans énumérer toutes les possibilités.
+        Itération avec Object.keys(country.languages) ou Object.values(country.languages).</li>
+        <li><strong>string[]</strong> (tableau typé): Tableau contenant uniquement des chaînes de caractères.
+        <br><em>Pourquoi l'utiliser?</em> Type-safety: TypeScript refusera capitals.push(123).
+        Accès au premier élément: capital[0] avec autocomplétion sur les méthodes de String.
+        Alternative: Array&lt;string&gt; est équivalent mais string[] est plus concis et idiomatique.</li>
       </ul>
     </div>
   </section>
   
   <!-- Step 4 -->
   <section class="step">
-    <h2>🔧 Étape 3: Créer le Service HTTP</h2>
+    <h2>🔧 Étape 3: Créer le Service HTTP (Angular 20)</h2>
     <div class="code-block">
       <pre ngNonBindable><code ngNonBindable>// country.service.ts
-import &#123; Injectable &#125; from '&#64;angular/core';
+import &#123; Injectable, inject &#125; from '&#64;angular/core';
 import &#123; HttpClient &#125; from '&#64;angular/common/http';
-import &#123; Observable &#125; from 'rxjs';
+import &#123; Observable, of &#125; from 'rxjs';
+import &#123; catchError &#125; from 'rxjs/operators';
 
 &#64;Injectable(&#123; providedIn: 'root' &#125;)
 export class CountryService &#123;
-  private readonly apiUrl = 'https://restcountries.com/v3.1';
+  // ✅ Angular 20: inject() remplace constructor injection
+  private readonly http = inject(HttpClient);
+  
+  private readonly BASE_URL = 'https://restcountries.com/v3.1';
 
-  constructor(private readonly http: HttpClient) &#123;&#125;
-
+  // Recherche avec PATH PARAMETER: /name/&#123;name&#125;
   searchByName(name: string): Observable&lt;Country[]&gt; &#123;
     return this.http.get&lt;Country[]&gt;(
-      &#96;$&#123;this.apiUrl&#125;/name/$&#123;name&#125;&#96;
+      &#96;$&#123;this.BASE_URL&#125;/name/$&#123;name&#125;&#96;  // Path parameter!
+    ).pipe(
+      catchError(() =&gt; of([]))  // Retourne tableau vide si erreur
     );
   &#125;
 
+  // Filtre avec PATH PARAMETER: /region/&#123;region&#125;
   getByRegion(region: string): Observable&lt;Country[]&gt; &#123;
     return this.http.get&lt;Country[]&gt;(
-      &#96;$&#123;this.apiUrl&#125;/region/$&#123;region&#125;&#96;
+      &#96;$&#123;this.BASE_URL&#125;/region/$&#123;region&#125;&#96;
+    ).pipe(
+      catchError(() =&gt; of([]))
+    );
+  &#125;
+
+  // Obtenir tous les pays: /all
+  getAllCountries(): Observable&lt;Country[]&gt; &#123;
+    return this.http.get&lt;Country[]&gt;(
+      &#96;$&#123;this.BASE_URL&#125;/all&#96;
+    ).pipe(
+      catchError(() =&gt; of([]))
     );
   &#125;
 &#125;</code></pre>
@@ -111,306 +174,520 @@ export class CountryService &#123;
     <div class="explanation">
       <h3>🔑 Mots-clés détaillés:</h3>
       <ul>
-        <li><strong>constructor()</strong>: Méthode d'initialisation automatiquement appelée par Angular lors de la création du service. 
-        Avec 'private readonly http: HttpClient', Angular injecte automatiquement HttpClient et crée une propriété accessible via this.http. 
-        'private' = encapsulation (visible uniquement dans le service), 'readonly' = immutabilité (empêche la réassignation). 
-        C'est la méthode standard et recommandée pour l'injection de dépendances.</li>
-        <li><strong>Observable&lt;T&gt;</strong>: Type générique représentant un flux de données asynchrones. 
-        Le &lt;T&gt; spécifie le type des données émises: Observable&lt;Country[]&gt; émettra un tableau de pays. 
-        Un Observable est 'cold' (lazy): le code ne s'exécute que lors du subscribe(). Peut émettre 0, 1 ou plusieurs valeurs. 
-        Plus puissant qu'une Promise: supporte l'annulation (unsubscribe), les transformations (pipe), et les opérateurs complexes.</li>
-        <li><strong>&#96;template literal&#96;</strong>: Syntaxe JavaScript moderne (ES6) pour créer des chaînes avec interpolation. 
-        Utilise les backticks ` au lieu de quotes '. Permet d'insérer des variables avec $&#123;&#125;: &#96;Hello $&#123;name&#125;&#96;. 
-        Très utile pour construire des URLs dynamiques: &#96;$&#123;this.apiUrl&#125;/users/$&#123;id&#125;&#96; est plus lisible que la concaténation. 
-        Supporte aussi les chaînes multi-lignes sans \n.</li>
-        <li><strong>http.get&lt;T&gt;()</strong>: Méthode HttpClient qui effectue une requête HTTP GET et retourne un Observable&lt;T&gt;. 
-        Le paramètre générique &lt;T&gt; définit le type attendu de la réponse JSON. 
-        Angular déserialize automatiquement le JSON en objet TypeScript: get&lt;User&gt;() convertit &#123;"name":"John"&#125; en objet User typé. 
-        Vous bénéficiez ainsi de l'autocomplétion et de la vérification de types sur la réponse.</li>
+        <li><strong>inject(HttpClient)</strong>: Nouvelle fonction d'injection de dépendance Angular 14+.
+        <br><em>Pourquoi l'utiliser?</em> Plus concis que constructor(private http: HttpClient).
+        Fonctionne dans les fonctions standalone, pas seulement les classes.
+        Code plus lisible: toutes les dépendances groupées en haut de la classe.
+        Recommandé par l'équipe Angular pour les nouvelles applications.
+        <br>Avant: constructor(private readonly http: HttpClient) &#123;&#125;
+        <br>Après: private readonly http = inject(HttpClient);</li>
+        <li><strong>&#96;$&#123;this.BASE_URL&#125;/name/$&#123;name&#125;&#96;</strong> (Template Literal + Path Parameter):
+        <br><em>Pourquoi l'utiliser?</em> Construit une URL dynamique proprement.
+        Le path parameter 'name' est directement intégré dans l'URL: /name/france.
+        Plus lisible que la concaténation: this.BASE_URL + '/name/' + name.
+        L'URL finale ressemble à: https://restcountries.com/v3.1/name/france</li>
+        <li><strong>pipe()</strong>: Méthode pour chaîner des opérateurs RxJS sur un Observable.
+        <br><em>Pourquoi l'utiliser?</em> Permet d'appliquer des transformations séquentiellement.
+        Chaque opérateur reçoit le résultat du précédent: source.pipe(op1, op2, op3).
+        Style fonctionnel: ne modifie pas l'Observable original, retourne un nouvel Observable.
+        Essentiel pour la composition: map → filter → catchError → tap.</li>
+        <li><strong>catchError(() =&gt; of([]))</strong>: Opérateur RxJS pour gérer les erreurs gracieusement.
+        <br><em>Pourquoi l'utiliser?</em> Si l'API retourne 404 (pays non trouvé), on retourne un tableau vide.
+        L'application ne plante pas, l'utilisateur voit simplement "Aucun résultat".
+        of([]) crée un Observable qui émet un tableau vide puis se complete.
+        Alternative: catchError(err =&gt; throwError(() =&gt; new Error('Custom message'))).</li>
+        <li><strong>of([])</strong>: Fonction RxJS créant un Observable à partir d'une valeur.
+        <br><em>Pourquoi l'utiliser?</em> catchError doit retourner un Observable, pas une valeur simple.
+        of([]) crée un Observable qui émet [] puis se complete immédiatement.
+        Autres usages: of(null), of(&#123;default: 'value'&#125;), of(1, 2, 3) pour plusieurs émissions.</li>
+        <li><strong>Observable&lt;Country[]&gt;</strong>: Type de retour représentant un flux asynchrone de données.
+        <br><em>Pourquoi l'utiliser?</em> TypeScript sait que le subscribe recevra un Country[].
+        Autocomplétion: .subscribe(countries =&gt; countries.map(c =&gt; c.name.common)).
+        Le &lt;T&gt; générique garantit le type des données émises par l'Observable.</li>
       </ul>
+      
+      <h3>🔗 Path Parameters vs Query Parameters:</h3>
+      <table>
+        <tr><th>Aspect</th><th>Path Parameter</th><th>Query Parameter</th></tr>
+        <tr><td>Syntaxe</td><td>/name/france</td><td>?name=france</td></tr>
+        <tr><td>Position</td><td>Dans le chemin</td><td>Après le ?</td></tr>
+        <tr><td>Usage</td><td>Identifier une ressource</td><td>Filtrer/paginer</td></tr>
+        <tr><td>Exemple</td><td>/users/123</td><td>/users?page=2&amp;limit=10</td></tr>
+      </table>
     </div>
   </section>
   
-  <!-- Step 5 -->
+  <!-- Step 5 - Component with Signals -->
   <section class="step">
-    <h2>🏠 Étape 4: Composant principal</h2>
+    <h2>🏠 Étape 4: Composant principal avec Signals (Angular 20)</h2>
     <div class="code-block">
-      <pre ngNonBindable><code ngNonBindable>export class CountriesComponent &#123;
+      <pre ngNonBindable><code ngNonBindable>// countries.component.ts
+import &#123; Component, inject, signal &#125; from '&#64;angular/core';
+import &#123; FormsModule &#125; from '&#64;angular/forms';
+import &#123; RouterLink &#125; from '&#64;angular/router';
+import &#123; DecimalPipe &#125; from '&#64;angular/common';
+import &#123; CountryService &#125; from '../services/country.service';
+import &#123; Country &#125; from '../models/country.model';
+
+&#64;Component(&#123;
+  selector: 'app-countries',
+  standalone: true,
+  imports: [FormsModule, RouterLink, DecimalPipe],
+  templateUrl: './countries.component.html',
+  styleUrl: './countries.component.css'
+&#125;)
+export class CountriesComponent &#123;
+  // ✅ Angular 20: inject() au lieu de constructor
+  private readonly countryService = inject(CountryService);
   
-  constructor(private readonly countryService: CountryService) &#123;&#125;
+  // ✅ Angular 16+: Signals pour l'état réactif
+  readonly countries = signal&lt;Country[]&gt;([]);
+  readonly loading = signal(false);
+  readonly error = signal&lt;string | null&gt;(null);
+  readonly hasSearched = signal(false);
+  readonly searchTerm = signal('');
   
-  // State with regular properties
-  countries: Country[] = [];
-  loading: boolean = false;
-  error: string | null = null;
-  searchTerm = '';
+  // Liste des régions (constante readonly)
+  readonly regions = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'] as const;
+  
+  // Mettre à jour le signal depuis l'input
+  onSearchInput(event: Event): void &#123;
+    const input = event.target as HTMLInputElement;
+    this.searchTerm.set(input.value);
+  &#125;
   
   search(): void &#123;
-    if (!this.searchTerm.trim()) return;
+    const term = this.searchTerm();  // Lire la valeur du signal
+    if (!term.trim()) return;
     
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);     // Mettre à jour le signal
+    this.error.set(null);
+    this.hasSearched.set(true);
     
-    this.countryService.searchByName(this.searchTerm)
-      .subscribe(&#123;
-        next: (data) =&gt; &#123;
-          this.countries = data;
-          this.loading = false;
-        &#125;,
-        error: (err) =&gt; &#123;
-          this.error = 'Pays non trouvé';
-          this.countries = [];
-          this.loading = false;
-        &#125;
-      &#125;);
+    this.countryService.searchByName(term).subscribe(&#123;
+      next: (data) =&gt; &#123;
+        this.countries.set(data);  // ✅ .set() remplace la valeur
+        this.loading.set(false);
+      &#125;,
+      error: () =&gt; &#123;
+        this.error.set('Erreur lors de la recherche');
+        this.countries.set([]);
+        this.loading.set(false);
+      &#125;
+    &#125;);
+  &#125;
+  
+  filterByRegion(event: Event): void &#123;
+    const select = event.target as HTMLSelectElement;
+    const region = select.value;
+    
+    if (!region) &#123;
+      this.countries.set([]);
+      return;
+    &#125;
+    
+    this.loading.set(true);
+    
+    this.countryService.getByRegion(region).subscribe(&#123;
+      next: (data) =&gt; &#123;
+        this.countries.set(data);
+        this.loading.set(false);
+      &#125;,
+      error: () =&gt; &#123;
+        this.error.set('Erreur lors du filtrage');
+        this.loading.set(false);
+      &#125;
+    &#125;);
+  &#125;
+  
+  // Helper pour extraire les langues
+  getLanguages(country: Country): string[] &#123;
+    if (!country.languages) return [];
+    return Object.keys(country.languages).map(key =&gt; country.languages![key]);
   &#125;
 &#125;</code></pre>
     </div>
     <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
+      <h3>🔑 Signals Angular - Concepts détaillés:</h3>
       <ul>
-        <li><strong>constructor()</strong>: Point d'injection automatique des dépendances par Angular. 
-        La syntaxe 'private readonly countryService: CountryService' fait 3 choses en une ligne: 
-        1) Déclare le paramètre, 2) Crée une propriété de classe, 3) L'initialise avec l'instance injectée. 
-        C'est un raccourci TypeScript très pratique qui évite d'écrire 'this.countryService = countryService;'.</li>
-        <li><strong>property = value</strong>: Affectation directe qui remplace complètement la valeur d'une propriété. 
-        Exemple: this.countries = data remplace tout le tableau. Angular détecte ce changement et met à jour automatiquement le template. 
-        Avec les objets/tableaux, préférez créer une nouvelle référence (immutabilité) pour garantir la détection de changement: 
-        this.countries = [...this.countries, newCountry] plutôt que this.countries.push(newCountry).</li>
-        <li><strong>.subscribe()</strong>: Méthode qui active l'Observable et commence à écouter ses émissions. 
-        Accepte un objet avec callbacks: next (succès), error (erreur), complete (fin). 
-        Pour une requête HTTP, 'next' est appelé une fois avec la réponse, puis 'complete' automatiquement. 
-        IMPORTANT: Conservez la Subscription retournée pour pouvoir unsubscribe() et éviter les memory leaks.</li>
-        <li><strong>next:</strong>: Callback exécuté quand l'Observable émet une valeur avec succès. 
-        C'est votre handler de succès, l'équivalent du .then() d'une Promise. 
-        Vous recevez les données ici et mettez à jour l'état de votre composant: this.countries = data, this.loading = false. 
-        Le nom 'next' vient de la notion d'itérateur: c'est la prochaine valeur dans le flux.</li>
-        <li><strong>error:</strong>: Callback exécuté quand une erreur survient dans le flux Observable. 
-        Reçoit l'objet d'erreur en paramètre (HttpErrorResponse pour les erreurs HTTP). 
-        C'est ici que vous gérez les erreurs: afficher un message, logger pour le débogage, définir une valeur par défaut. 
-        Après une erreur, l'Observable se termine (complete) automatiquement - aucune autre valeur ne sera émise.</li>
-        <li><strong>.trim()</strong>: Méthode JavaScript qui supprime les espaces blancs (whitespace) en début et fin de chaîne. 
-        Essentiel pour valider les inputs utilisateur: '  Paris  '.trim() devient 'Paris'. 
-        Empìhe d'envoyer des requêtes API avec juste des espaces. Toujours valider avec .trim() avant traitement!</li>
+        <li><strong>signal&lt;T&gt;(initialValue)</strong>: Crée un signal réactif typé avec une valeur initiale.
+        <br><em>Pourquoi l'utiliser?</em> Remplace les propriétés simples pour une gestion d'état réactive.
+        Détection de changement automatique: Angular sait exactement quand le signal change.
+        Plus performant que Zone.js: pas de vérification de tout l'arbre de composants.
+        <br>Syntaxe: signal&lt;Country[]&gt;([]) crée un signal initialisé avec un tableau vide.
+        Le type générique &lt;T&gt; garantit le type-safety sur toutes les opérations.</li>
+        <li><strong>.set(newValue)</strong>: Remplace complètement la valeur du signal.
+        <br><em>Pourquoi l'utiliser?</em> Modification directe quand vous avez la nouvelle valeur complète.
+        <br>Exemple: this.countries.set(data) remplace tout le tableau.
+        <br>Exemple: this.loading.set(true) change le booléen.
+        Angular détecte ce changement et re-rend uniquement les vues qui utilisent ce signal.</li>
+        <li><strong>.update(fn)</strong>: Met à jour la valeur basée sur la valeur actuelle.
+        <br><em>Pourquoi l'utiliser?</em> Quand la nouvelle valeur dépend de l'ancienne.
+        <br>Exemple: this.count.update(n =&gt; n + 1) incrémente le compteur.
+        <br>Exemple: this.items.update(list =&gt; [...list, newItem]) ajoute un élément.
+        Pattern fonctionnel: la fonction reçoit la valeur actuelle et retourne la nouvelle.</li>
+        <li><strong>signal()</strong> (lecture): Appeler le signal comme une fonction pour lire sa valeur.
+        <br><em>Pourquoi cette syntaxe?</em> Distingue clairement lecture et écriture.
+        <br>Lecture: const term = this.searchTerm() retourne 'france'.
+        <br>Template: <code ngNonBindable>&#123;&#123; countries() &#125;&#125;</code> affiche la valeur actuelle.
+        Angular track ces lectures pour savoir quelles vues dépendent de quels signals.</li>
+        <li><strong>as const</strong>: Assertion TypeScript qui rend un tableau ou objet en lecture seule et littéral.
+        <br><em>Pourquoi l'utiliser?</em> ['Africa', 'Europe'] as const crée un tuple immuable.
+        TypeScript infère le type ('Africa' | 'Americas' | 'Asia' | 'Europe' | 'Oceania')[] au lieu de string[].
+        Empêche les modifications accidentelles: regions.push('Invalid') génère une erreur.
+        Parfait pour les constantes de configuration ou les listes de valeurs permises.</li>
+        <li><strong>inject(Service)</strong>: Injection de dépendance fonctionnelle (Angular 14+).
+        <br><em>Pourquoi l'utiliser?</em> Plus concis que constructor(private service: Service).
+        Fonctionne en dehors des constructeurs (fonctions, guards, etc.).
+        Toutes les dépendances groupées visuellement en haut de la classe.
+        <br>Avant: <code>constructor(private readonly countryService: CountryService) &#123;&#125;</code>
+        <br>Après: <code>private readonly countryService = inject(CountryService);</code></li>
+        <li><strong>Object.keys() + map()</strong>: Technique pour transformer un objet en tableau.
+        <br><em>Pourquoi l'utiliser?</em> languages est un objet &#123;fra: 'French', eng: 'English'&#125;.
+        Object.keys(languages) retourne ['fra', 'eng'].
+        .map(key =&gt; languages[key]) retourne ['French', 'English'].
+        Le '!' dans languages![key] indique à TypeScript que languages existe (nous avons vérifié avant).</li>
       </ul>
+      
+      <h3>📊 Comparaison: Propriétés vs Signals</h3>
+      <table>
+        <tr><th>Aspect</th><th>Propriété simple</th><th>Signal</th></tr>
+        <tr><td>Déclaration</td><td>loading = false;</td><td>loading = signal(false);</td></tr>
+        <tr><td>Lecture</td><td>this.loading</td><td>this.loading()</td></tr>
+        <tr><td>Écriture</td><td>this.loading = true;</td><td>this.loading.set(true);</td></tr>
+        <tr><td>Détection</td><td>Zone.js (global)</td><td>Fine-grained (optimal)</td></tr>
+        <tr><td>Performance</td><td>Vérifie tout</td><td>Vérifie seulement les dépendances</td></tr>
+      </table>
     </div>
   </section>
   
   <!-- RxJS Section -->
   <section class="step">
-    <h2>🔧 Étape 5b: RxJS Observables et Gestion Mémoire</h2>
+    <h2>🔧 Étape 5: RxJS - catchError et gestion d'erreurs</h2>
     <div class="code-block">
-      <pre ngNonBindable><code ngNonBindable>// Service retourne un Observable
+      <pre ngNonBindable><code ngNonBindable>// Dans le service: Gestion d'erreur centralisée
+import &#123; catchError &#125; from 'rxjs/operators';
+import &#123; of &#125; from 'rxjs';
+
 searchByName(name: string): Observable&lt;Country[]&gt; &#123;
-  return this.http.get&lt;Country[]&gt;(&#96;$&#123;this.apiUrl&#125;/name/$&#123;name&#125;&#96;);
+  return this.http.get&lt;Country[]&gt;(&#96;$&#123;this.BASE_URL&#125;/name/$&#123;name&#125;&#96;)
+    .pipe(
+      catchError((error) =&gt; &#123;
+        console.error('Erreur API:', error);
+        return of([]);  // Retourne un tableau vide en cas d'erreur
+      &#125;)
+    );
 &#125;
 
-// Component avec nettoyage
-export class CountriesComponent implements OnDestroy &#123;
-  private subscription?: Subscription;
+// Dans le composant: Subscribe simple grâce à catchError
+search(): void &#123;
+  this.loading.set(true);
   
-  search(): void &#123;
-    // Nettoyer l'ancienne subscription si elle existe
-    this.subscription?.unsubscribe();
-    
-    this.subscription = this.countryService.searchByName(this.searchTerm)
-      .subscribe(&#123;
-        next: (data) =&gt; &#123;
-          this.countries = data;
-          this.loading = false;
-        &#125;,
-        error: (err) =&gt; &#123;
-          this.error = 'Pays non trouvé';
-          this.loading = false;
-        &#125;
-      &#125;);
-  &#125;
-  
-  ngOnDestroy(): void &#123;
-    // IMPORTANT: Évite les memory leaks
-    this.subscription?.unsubscribe();
-  &#125;
+  this.countryService.searchByName(term).subscribe(&#123;
+    next: (data) =&gt; &#123;
+      this.countries.set(data);
+      this.loading.set(false);
+      // Si data est vide, c'est que l'erreur a été gérée dans le service
+    &#125;,
+    error: () =&gt; &#123;
+      // Ce bloc n'est jamais atteint grâce à catchError
+      this.error.set('Erreur inattendue');
+      this.loading.set(false);
+    &#125;
+  &#125;);
 &#125;</code></pre>
     </div>
     <div class="explanation">
       <h3>🔑 Concepts RxJS détaillés:</h3>
       <ul>
-        <li><strong>Observable</strong>: Pattern de programmation réactive représentant un flux (stream) de données asynchrones dans le temps. 
-        Contrairement aux Promises (1 valeur unique), les Observables peuvent émettre 0, 1 ou plusieurs valeurs. 
-        Concepts clés: 
-        - 'Cold' (lazy): Ne s'exécute que lors du subscribe() 
-        - 'Hot': S'exécute indépendamment des subscriptions (ex: WebSockets) 
-        - Composable: Peut être transformé avec des opérateurs (map, filter, merge, etc.) 
-        - Annulable: unsubscribe() arrête l'émission et libère les ressources</li>
-        <li><strong>subscribe()</strong>: Méthode qui 'démarre' l'Observable et établit une connexion pour recevoir les valeurs émises. 
-        Avant subscribe(), l'Observable est inactif (cold). Après subscribe(), le code s'exécute. 
-        Prend 3 callbacks optionnels: 
-        - next(value): Appelé à chaque émission de valeur 
-        - error(err): Appelé en cas d'erreur (termine le flux) 
-        - complete(): Appelé quand le flux se termine normalement 
-        Retourne une Subscription pour pouvoir unsubscribe() plus tard.</li>
-        <li><strong>Subscription</strong>: Objet représentant une exécution active d'un Observable, retourné par subscribe(). 
-        Stockez cette référence pour contrôler le cycle de vie: private sub?: Subscription. 
-        Méthodes principales: 
-        - unsubscribe(): Coupe la connexion et libère les ressources 
-        - add(otherSub): Groupe plusieurs subscriptions pour unsubscribe en une fois 
-        - closed: Booléen indiquant si la subscription est terminée 
-        Toujours nettoyer dans ngOnDestroy() pour éviter les fuites mémoire!</li>
-        <li><strong>unsubscribe()</strong>: Méthode CRITIQUE qui annule la subscription et libère toutes les ressources associées. 
-        Pourquoi c'est important: 
-        - Sans unsubscribe: Le callback continue de s'exécuter même après destruction du composant 
-        - Conséquences: Memory leaks (fuite mémoire), comportements inattendus, ralentissements 
-        - Sur une SPA, après 100 navigations, vous pourriez avoir 100 subscriptions actives! 
-        Pattern recommandé: Toujours implémenter OnDestroy et unsubscribe dans ngOnDestroy(). 
-        Alternative: Opérateur takeUntil() avec un Subject pour auto-unsubscribe.</li>
-        <li><strong>next</strong>: Callback de succès appelé à chaque émission de valeur par l'Observable. 
-        Pour une requête HTTP GET, 'next' est appelé exactement une fois avec les données de réponse. 
-        C'est ici que vous mettez à jour l'état du composant: this.countries = data, this.loading = false. 
-        Nom technique: 'Observer.next()' - partie du pattern Observer (Observable/Observer).</li>
-        <li><strong>error</strong>: Callback d'erreur appelé quand une erreur survient dans le flux (réseau, serveur, timeout, etc.). 
-        Reçoit un objet HttpErrorResponse pour les erreurs HTTP, contenant status, statusText, url, error. 
-        Après l'appel d'error, le flux se termine automatiquement (complete) - plus d'émissions possibles. 
-        Best practices: 
-        - Toujours gérer les erreurs pour une bonne UX 
-        - Logger pour le débogage: console.error(err) 
-        - Afficher un message utilisateur clair 
-        - Désactiver le loading: this.loading = false</li>
-        <li><strong>complete</strong>: Callback optionnel appelé quand l'Observable se termine normalement (pas d'erreur). 
-        Pour les requêtes HTTP, 'complete' est appelé automatiquement après 'next'. 
-        Utile pour les Observables qui émettent plusieurs valeurs (WebSocket, interval, etc.). 
-        Indique qu'aucune autre valeur ne sera émise. Après complete, la Subscription est automatiquement nettoyée.</li>
+        <li><strong>catchError()</strong>: Opérateur RxJS qui intercepte les erreurs et permet de les gérer.
+        <br><em>Pourquoi l'utiliser dans le service?</em> Centralise la gestion d'erreurs en un seul endroit.
+        Le composant n'a pas besoin de gérer chaque erreur individuellement.
+        Retourne un Observable de remplacement: of([]) fournit un tableau vide au lieu de l'erreur.
+        L'application continue de fonctionner sans planter.</li>
+        <li><strong>of(value)</strong>: Crée un Observable qui émet une valeur immédiatement puis complete.
+        <br><em>Pourquoi l'utiliser?</em> catchError doit retourner un Observable, pas une valeur simple.
+        of([]) crée un Observable émettant un tableau vide.
+        Le subscribe recevra [] dans 'next', pas dans 'error'.
+        Alternative: throwError() pour propager l'erreur au composant.</li>
+        <li><strong>pipe()</strong>: Méthode pour chaîner des opérateurs RxJS.
+        <br><em>Pourquoi l'utiliser?</em> Compose plusieurs transformations de manière lisible.
+        .pipe(map(...), filter(...), catchError(...)) applique les opérateurs en séquence.
+        Style fonctionnel: chaque opérateur retourne un nouvel Observable.
+        Plus maintenable que les callbacks imbriqués.</li>
+        <li><strong>Observable</strong>: Flux de données asynchrones pouvant émettre 0, 1 ou plusieurs valeurs.
+        <br><em>Pourquoi l'utiliser?</em> Plus puissant que les Promises pour les opérations asynchrones.
+        Annulable via unsubscribe() (contrairement aux Promises).
+        Composable avec des opérateurs (map, filter, merge, etc.).
+        Parfait pour les événements (clics, WebSocket) et les requêtes HTTP.</li>
+        <li><strong>subscribe()</strong>: Active l'Observable et commence à recevoir les valeurs.
+        <br><em>Pourquoi l'utiliser?</em> Un Observable est 'lazy': rien ne se passe sans subscribe().
+        Le callback 'next' reçoit chaque valeur émise.
+        Le callback 'error' reçoit l'erreur si non gérée par catchError.
+        Le callback 'complete' est appelé quand le flux se termine normalement.</li>
       </ul>
       
-      <h3>⚠️ Pourquoi unsubscribe() est CRUCIAL ?</h3>
-      <ul>
-        <li>❌ <strong>Sans unsubscribe</strong>: La subscription reste active indéfiniment, même après que le composant soit détruit et supprimé de l'écran. 
-        Le composant 'détruit' reste en mémoire à cause de la référence dans la subscription. 
-        Scénario: L'utilisateur navigue 50 fois → 50 composants détruits mais 50 subscriptions actives → Ralentissement sévère!</li>
-        <li>❌ <strong>Comportements inattendus</strong>: Les callbacks (next, error) continuent de s'exécuter sur un composant détruit. 
-        Cela peut causer des erreurs: Tentative de modifier une propriété d'un composant qui n'existe plus dans le DOM. 
-        Les effets de bord (side effects) continuent: Requêtes réseau, mise à jour de cache, etc.</li>
-        <li>✅ <strong>Avec unsubscribe dans ngOnDestroy</strong>: Nettoyage propre et automatique des ressources. 
-        Dès que le composant est détruit, la subscription est annulée, libérant la mémoire. 
-        Garantit que votre application reste rapide et sans fuites mémoire même après des heures d'utilisation.</li>
-        <li>💡 <strong>Best practice universelle</strong>: Si vous appelez subscribe() manuellement, vous DEVEZ appeler unsubscribe(). 
-        Exception: Les Observables HTTP (get, post, etc.) se 'complete' automatiquement après la réponse, mais mieux vaut unsubscribe par sécurité. 
-        Pour les Observables infinis (WebSocket, interval, fromEvent), unsubscribe() est OBLIGATOIRE.</li>
-      </ul>
+      <h3>⚡ Flux de données avec catchError:</h3>
+      <div class="diagram">
+        <pre ngNonBindable>
+API Call → Succès → Observable émet Country[] → subscribe.next() → Affichage
+                                    ↓
+            Erreur 404 → catchError() intercepte
+                                    ↓
+                         of([]) émet [] → subscribe.next() → "Aucun résultat"
+        </pre>
+      </div>
     </div>
   </section>
   
-  <!-- Step 6 -->
+  <!-- Step 6 - Template -->
   <section class="step">
-    <h2>📄 Étape 6: Template</h2>
+    <h2>📄 Étape 6: Template avec Signals et Control Flow</h2>
     <div class="code-block">
-      <pre ngNonBindable><code ngNonBindable>&lt;input 
-  type="text" 
-  [(ngModel)]="searchTerm"
-  placeholder="Rechercher un pays..."
+      <pre ngNonBindable><code ngNonBindable>&lt;!-- Input avec Signals (pas ngModel) --&gt;
+&lt;input 
+  type="text"
+  [value]="searchTerm()"
+  (input)="onSearchInput($event)"
   (keyup.enter)="search()"
+  placeholder="Rechercher un pays..."
 /&gt;
-&lt;button (click)="search()"&gt;Rechercher&lt;/button&gt;
+&lt;button (click)="search()" [disabled]="loading()"&gt;🔍 Rechercher&lt;/button&gt;
 
-&#64;if (loading) &#123;
-  &lt;p&gt;⏳ Chargement...&lt;/p&gt;
-&#125;
-
-&#64;if (error) &#123;
-  &lt;p class="error"&gt;❌ {{ error }}&lt;/p&gt;
-&#125;
-
-&lt;div class="grid"&gt;
-  &#64;for (country of countries; track country.name.common) &#123;
-    &lt;div class="card"&gt;
-      &lt;img [src]="country.flags.png" [alt]="country.name.common" /&gt;
-      &lt;h3&gt;{{ country.name.common }}&lt;/h3&gt;
-      &lt;p&gt;🏛️ {{ country.capital?.[0] || 'N/A' }}&lt;/p&gt;
-      &lt;p&gt;👥 {{ country.population | number }}&lt;/p&gt;
-    &lt;/div&gt;
+&lt;!-- Filtre par région --&gt;
+&lt;select (change)="filterByRegion($event)"&gt;
+  &lt;option value=""&gt;Toutes les régions&lt;/option&gt;
+  &#64;for (region of regions; track region) &#123;
+    &lt;option [value]="region"&gt;&#123;&#123; region &#125;&#125;&lt;/option&gt;
   &#125;
-&lt;/div&gt;</code></pre>
+&lt;/select&gt;
+
+&lt;!-- États conditionnels avec &#64;if --&gt;
+&#64;if (loading()) &#123;
+  &lt;div class="loading"&gt;⏳ Recherche en cours...&lt;/div&gt;
+&#125;
+
+&#64;if (error()) &#123;
+  &lt;div class="error"&gt;❌ &#123;&#123; error() &#125;&#125;&lt;/div&gt;
+&#125;
+
+&lt;!-- Résultats avec &#64;for --&gt;
+&#64;if (!loading() &amp;&amp; countries().length &gt; 0) &#123;
+  &lt;h2&gt;📋 Résultats (&#123;&#123; countries().length &#125;&#125; pays)&lt;/h2&gt;
+  &lt;div class="grid"&gt;
+    &#64;for (country of countries(); track country.name.common) &#123;
+      &lt;div class="card"&gt;
+        &lt;img [src]="country.flags.svg" [alt]="country.name.common + ' flag'" /&gt;
+        &lt;h3&gt;&#123;&#123; country.name.common &#125;&#125;&lt;/h3&gt;
+        
+        &#64;if (country.capital &amp;&amp; country.capital.length &gt; 0) &#123;
+          &lt;p&gt;🏛️ &#123;&#123; country.capital[0] &#125;&#125;&lt;/p&gt;
+        &#125;
+        
+        &lt;p&gt;👥 &#123;&#123; country.population | number &#125;&#125;&lt;/p&gt;
+        &lt;p&gt;📍 &#123;&#123; country.region &#125;&#125;&lt;/p&gt;
+        
+        &#64;if (country.languages) &#123;
+          &lt;div class="languages"&gt;
+            &#64;for (lang of getLanguages(country); track lang) &#123;
+              &lt;span class="tag"&gt;&#123;&#123; lang &#125;&#125;&lt;/span&gt;
+            &#125;
+          &lt;/div&gt;
+        &#125;
+        
+        &lt;a [href]="country.maps.googleMaps" target="_blank"&gt;🗺️ Voir sur Maps&lt;/a&gt;
+      &lt;/div&gt;
+    &#125;
+  &lt;/div&gt;
+&#125;</code></pre>
     </div>
     <div class="explanation">
-      <h3>🔑 Mots-clés détaillés:</h3>
+      <h3>🔑 Mots-clés du template détaillés:</h3>
       <ul>
-        <li><strong>[(ngModel)]</strong>: Two-way data binding (liaison bidirectionnelle) - synchro automatique entre template et composant. 
-        Les crochets [( )] combinent property binding [ ] (composant → template) et event binding ( ) (template → composant). 
-        Quand l'utilisateur tape dans l'input, searchTerm se met à jour; si vous changez searchTerm dans le code, l'input se met à jour. 
-        Nécessite FormsModule pour fonctionner. Alternative moderne: utiliser [value] + (input) séparément.</li>
-        <li><strong>(keyup.enter)</strong>: Event binding pour écouter la touche Entrée spécifiquement. 
-        Syntaxe: (event.modifier) où event=keyup, modifier=enter. Autres exemples: (keyup.escape), (keydown.shift.a). 
-        Permet de déclencher la recherche quand l'utilisateur appuie sur Entrée dans l'input, améliorant l'UX. 
+        <li><strong>[value]="searchTerm()"</strong>: Property binding avec lecture de signal.
+        <br><em>Pourquoi l'utiliser?</em> Lie la valeur de l'input au signal searchTerm.
+        searchTerm() appelle le signal pour lire sa valeur actuelle.
+        Contrairement à [(ngModel)], c'est unidirectionnel (signal → input seulement).
+        L'event (input) gère le sens inverse (input → signal).</li>
+        <li><strong>(input)="onSearchInput($event)"</strong>: Event binding pour chaque caractère tapé.
+        <br><em>Pourquoi l'utiliser?</em> Capture l'événement à chaque frappe, pas seulement à la fin.
+        $event contient l'objet Event natif du navigateur.
+        onSearchInput extrait la valeur et met à jour le signal avec .set().
+        Alternative: (change) ne se déclenche qu'à la perte de focus.</li>
+        <li><strong>(keyup.enter)="search()"</strong>: Event binding pour la touche Entrée uniquement.
+        <br><em>Pourquoi l'utiliser?</em> UX améliorée: lance la recherche sans cliquer.
+        Syntaxe Angular: (keyup.TOUCHE) filtre sur une touche spécifique.
+        Autres: (keyup.escape), (keydown.ctrl.s), (keyup.arrowdown).
         Plus simple que de vérifier event.key === 'Enter' manuellement.</li>
-        <li><strong>[src]</strong>: Property binding pour lier dynamiquement un attribut HTML à une expression TypeScript. 
-        Les crochets [ ] indiquent à Angular d'évaluer l'expression: [src]="country.flags.png" charge l'URL dynamiquement. 
-        Sans crochets, src="country.flags.png" serait interprété comme une chaîne litérale. 
-        Fonctionne avec tous les attributs HTML: [href], [disabled], [class], [style], etc.</li>
-        <li><strong>&#64;for ... track</strong>: Nouvelle syntaxe de boucle Angular 17+ pour itérer sur des collections. 
-        'track' est obligatoire et définit l'identifiant unique de chaque élément (ex: track country.name.common). 
-        Angular utilise track pour optimiser: quand les données changent, seuls les éléments modifiés sont ré-rendus. 
-        Sans track, Angular recréerait tous les éléments à chaque changement, dégradant les performances sur grandes listes.</li>
-        <li><strong>?.[0]</strong>: Optional chaining - accès sécurisé à une propriété qui peut ne pas exister. 
-        country.capital?.[0] retourne la première capitale si capital existe, undefined sinon (pas d'erreur). 
-        Sans '?', accéder à undefined[0] génèrerait 'Cannot read property 0 of undefined'. 
-        Peut être combiné avec || pour valeur par défaut: country.capital?.[0] || 'N/A'.</li>
-        <li><strong>| number</strong>: Pipe de transformation Angular qui formate les nombres selon la locale. 
-        Ajoute automatiquement les séparateurs de milliers: 1000000 devient '1,000,000' (en-US) ou '1 000 000' (fr-FR). 
-        Paramétrable: | number:'1.2-2' affiche toujours 2 décimales. 
-        Autres pipes utiles: | date, | currency, | percent, | uppercase. Chainables: value | number | currency.</li>
+        <li><strong>&#64;if (loading())</strong>: Nouveau control flow Angular 17+ pour conditions.
+        <br><em>Pourquoi l'utiliser?</em> Remplace *ngIf avec une syntaxe plus claire.
+        loading() lit la valeur du signal (true/false).
+        Le bloc est affiché uniquement si la condition est vraie.
+        Plus performant: Angular optimise mieux le rendu conditionnel.</li>
+        <li><strong>&#64;for (item of items(); track item.id)</strong>: Nouvelle boucle Angular 17+.
+        <br><em>Pourquoi l'utiliser?</em> Remplace *ngFor avec typage amélioré.
+        'track' est obligatoire: identifiant unique pour optimiser les mises à jour.
+        countries() appelle le signal pour obtenir le tableau actuel.
+        Quand le signal change, seuls les éléments modifiés sont re-rendus.</li>
+        <li><strong>track country.name.common</strong>: Identifiant unique pour chaque élément.
+        <br><em>Pourquoi l'utiliser?</em> Angular utilise cette clé pour le DOM diffing.
+        Quand les données changent, Angular compare les clés pour savoir quoi re-rendre.
+        Sans track: Angular recrée tous les éléments à chaque changement.
+        Avec track: seuls les nouveaux/modifiés/supprimés sont touchés. Performance x10!</li>
+        <li><strong>| number</strong>: Pipe de formatage pour les nombres.
+        <br><em>Pourquoi l'utiliser?</em> Affiche 67000000 comme '67,000,000' ou '67 000 000'.
+        Ajoute les séparateurs de milliers selon la locale.
+        Paramétrable: | number:'1.0-2' pour 0-2 décimales.
+        Autres pipes: | date, | currency, | percent, | uppercase.</li>
+        <li><strong>[disabled]="loading()"</strong>: Property binding dynamique sur attribut.
+        <br><em>Pourquoi l'utiliser?</em> Désactive le bouton pendant le chargement.
+        loading() retourne true/false, le bouton est disabled/enabled en conséquence.
+        Empêche les clics multiples pendant une requête en cours.
+        UX: indique visuellement que l'action est en cours.</li>
       </ul>
     </div>
   </section>
   
   <!-- Summary -->
   <section class="summary">
-    <h2>📋 Résumé des Concepts</h2>
+    <h2>📋 Résumé des Concepts Angular 20</h2>
     <table>
       <tr>
         <th>Concept</th>
+        <th>Syntaxe</th>
         <th>Utilisé pour</th>
       </tr>
       <tr>
-        <td>constructor()</td>
-        <td>Injection de dépendances</td>
+        <td>inject()</td>
+        <td>inject(Service)</td>
+        <td>Injection de dépendances moderne</td>
       </tr>
       <tr>
-        <td>properties</td>
-        <td>Gestion d'état</td>
+        <td>signal()</td>
+        <td>signal&lt;T&gt;(value)</td>
+        <td>Gestion d'état réactive</td>
       </tr>
       <tr>
-        <td>Observable + subscribe()</td>
-        <td>Appels API asynchrones</td>
+        <td>.set()</td>
+        <td>signal.set(newValue)</td>
+        <td>Remplacer la valeur du signal</td>
       </tr>
       <tr>
-        <td>[(ngModel)]</td>
-        <td>Two-way data binding</td>
+        <td>.update()</td>
+        <td>signal.update(fn)</td>
+        <td>Mettre à jour basé sur valeur actuelle</td>
       </tr>
       <tr>
-        <td>&#64;if / &#64;for</td>
-        <td>Control flow moderne</td>
+        <td>&#64;if</td>
+        <td>&#64;if (condition) &#123; &#125;</td>
+        <td>Affichage conditionnel</td>
       </tr>
       <tr>
-        <td>Pipe number</td>
-        <td>Formatage des nombres</td>
+        <td>&#64;for</td>
+        <td>&#64;for (item of items(); track id)</td>
+        <td>Boucle sur collections</td>
+      </tr>
+      <tr>
+        <td>Path Parameter</td>
+        <td>/name/$&#123;name&#125;</td>
+        <td>Paramètre dans l'URL</td>
+      </tr>
+      <tr>
+        <td>catchError</td>
+        <td>pipe(catchError(() =&gt; of([])))</td>
+        <td>Gestion d'erreurs API</td>
       </tr>
     </table>
+  </section>
+  
+  <!-- Architecture Diagram -->
+  <section class="step">
+    <h2>🏗️ Architecture du flux de données</h2>
+    <div class="diagram">
+      <pre ngNonBindable>
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        COUNTRIES COMPONENT                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│  SIGNALS (État réactif)                                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
+│  │ countries() │  │  loading()  │  │   error()   │  │ searchTerm()│    │
+│  │ Country[]   │  │   boolean   │  │string|null  │  │   string    │    │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │
+│        ↑                ↑                ↑                ↑             │
+│        │                │                │                │             │
+│        └────────────────┴────────────────┴────────────────┘             │
+│                                  │                                       │
+│                            .set(value)                                   │
+│                                  │                                       │
+│  ┌───────────────────────────────┴───────────────────────────────────┐  │
+│  │                         MÉTHODES                                   │  │
+│  │  search() ─────────→ countryService.searchByName(term)             │  │
+│  │  filterByRegion() ──→ countryService.getByRegion(region)           │  │
+│  │  onSearchInput() ───→ searchTerm.set(value)                        │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        COUNTRY SERVICE                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  inject(HttpClient)                                                      │
+│                                                                          │
+│  searchByName(name) ──→ GET /v3.1/name/&#123;name&#125; ──→ Observable&lt;Country[]&gt;│
+│  getByRegion(region) ─→ GET /v3.1/region/&#123;region&#125; → Observable&lt;Country[]&gt;│
+│  getAllCountries() ───→ GET /v3.1/all ──────────→ Observable&lt;Country[]&gt;│
+│                                                                          │
+│                    pipe(catchError(() =&gt; of([])))                       │
+└─────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        REST COUNTRIES API                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  https://restcountries.com/v3.1                                          │
+│                                                                          │
+│  PATH PARAMETERS (paramètres dans le chemin):                           │
+│    /name/france     → Recherche par nom                                 │
+│    /region/europe   → Filtre par région                                 │
+│    /alpha/fr        → Recherche par code pays                           │
+│    /all             → Tous les pays                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+      </pre>
+    </div>
   </section>
   
   <!-- Checklist -->
   <section class="checklist">
     <h2>✅ Points de vérification</h2>
-    <h3>Avant de commencer:</h3>
+    <h3>Configuration Angular 20:</h3>
     <ul>
-      <li>☐ HttpClient configuré dans app.config.ts?</li>
-      <li>☐ FormsModule importé dans le composant?</li>
+      <li>☐ provideHttpClient() dans app.config.ts?</li>
+      <li>☐ FormsModule importé dans le composant standalone?</li>
+      <li>☐ DecimalPipe importé pour | number?</li>
     </ul>
     
-    <h3>Tests:</h3>
+    <h3>Signals:</h3>
+    <ul>
+      <li>☐ Déclaration avec signal&lt;T&gt;(initialValue)?</li>
+      <li>☐ Lecture avec signal() dans le template?</li>
+      <li>☐ Mise à jour avec .set() ou .update()?</li>
+    </ul>
+    
+    <h3>Tests fonctionnels:</h3>
     <ul>
       <li>☐ Recherche "France" → affiche la France</li>
-      <li>☐ Recherche "xyzabc" → affiche erreur</li>
-      <li>☐ Filtre par région fonctionne</li>
+      <li>☐ Recherche "xyzabc" → tableau vide (grâce à catchError)</li>
+      <li>☐ Filtre par région "Europe" fonctionne</li>
       <li>☐ Loading s'affiche pendant la requête</li>
+      <li>☐ Bouton désactivé pendant loading</li>
+    </ul>
+    
+    <h3>Erreurs courantes:</h3>
+    <ul>
+      <li>❌ Oublier () pour lire un signal: countries vs countries()</li>
+      <li>❌ Utiliser = au lieu de .set() pour modifier un signal</li>
+      <li>❌ Oublier track dans &#64;for</li>
+      <li>❌ Oublier pipe(catchError()) dans le service</li>
     </ul>
   </section>
 </div>

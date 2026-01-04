@@ -25,73 +25,100 @@
         <h2>🏗️ Structure de l'API REST Countries</h2>
         
         <div class="visual-diagram">
-          <svg viewBox="0 0 800 500" class="api-diagram">
+          <svg viewBox="0 0 850 520" class="api-diagram">
             <!-- Base URL -->
-            <g class="api-element animate-pulse-1">
-              <rect x="50" y="50" width="700" height="60" rx="10" fill="#3F51B5"/>
-              <text x="400" y="90" text-anchor="middle" fill="white" font-size="18" font-weight="bold">
+            <g class="api-element animate-scale" style="animation-delay: 0.5s;">
+              <rect x="50" y="30" width="750" height="60" rx="10" fill="#3F51B5"/>
+              <text x="425" y="70" text-anchor="middle" fill="white" font-size="18" font-weight="bold">
                 https://restcountries.com/v3.1
               </text>
             </g>
             
+            <!-- Arrow from URL to endpoints -->
+            <g class="animate-scale" style="animation-delay: 1s;">
+              <line x1="200" y1="90" x2="150" y2="150" stroke="#3F51B5" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrow-blue)"/>
+              <line x1="425" y1="90" x2="400" y2="150" stroke="#3F51B5" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrow-blue)"/>
+              <line x1="650" y1="90" x2="650" y2="150" stroke="#3F51B5" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrow-blue)"/>
+            </g>
+            
             <!-- Endpoints -->
-            <g class="endpoint animate-slide-1 animate-float" transform="translate(0, 120)" style="animation-delay: 0.5s;">
-              <rect x="50" y="50" width="200" height="70" rx="8" fill="#4CAF50" class="interactive-element"/>
-              <rect x="60" y="60" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
-              <text x="80" y="75" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
-              <text x="150" y="80" text-anchor="middle" fill="white" font-weight="bold">/all</text>
-              <text x="150" y="100" text-anchor="middle" fill="white" font-size="12">Tous les pays</text>
+            <g class="endpoint animate-scale" style="animation-delay: 1.5s;">
+              <rect x="50" y="150" width="200" height="80" rx="8" fill="#4CAF50" class="interactive-element"/>
+              <rect x="60" y="160" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
+              <text x="80" y="175" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
+              <text x="150" y="185" text-anchor="middle" fill="white" font-weight="bold">/all</text>
+              <text x="150" y="210" text-anchor="middle" fill="white" font-size="12">Tous les pays</text>
               <title>Récupère la liste complète des pays</title>
             </g>
             
-            <g class="endpoint animate-slide-2 animate-float" transform="translate(0, 120)" style="animation-delay: 1s;">
-              <rect x="300" y="50" width="200" height="70" rx="8" fill="#FF9800" class="interactive-element"/>
-              <rect x="310" y="60" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
-              <text x="330" y="75" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
-              <text x="400" y="80" text-anchor="middle" fill="white" font-weight="bold">/name/:name</text>
-              <text x="400" y="100" text-anchor="middle" fill="white" font-size="12">Par nom</text>
+            <g class="endpoint animate-scale" style="animation-delay: 2s;">
+              <rect x="300" y="150" width="200" height="80" rx="8" fill="#FF9800" class="interactive-element"/>
+              <rect x="310" y="160" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
+              <text x="330" y="175" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
+              <text x="400" y="185" text-anchor="middle" fill="white" font-weight="bold">/name/:name</text>
+              <text x="400" y="210" text-anchor="middle" fill="white" font-size="12">Par nom (Path Param)</text>
               <title>Recherche par nom (ex: 'france')</title>
             </g>
             
-            <g class="endpoint animate-slide-3 animate-float" transform="translate(0, 120)" style="animation-delay: 1.5s;">
-              <rect x="550" y="50" width="200" height="70" rx="8" fill="#9C27B0" class="interactive-element"/>
-              <rect x="560" y="60" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
-              <text x="580" y="75" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
-              <text x="650" y="80" text-anchor="middle" fill="white" font-weight="bold">/region/:region</text>
-              <text x="650" y="100" text-anchor="middle" fill="white" font-size="12">Par région</text>
+            <g class="endpoint animate-scale" style="animation-delay: 2.5s;">
+              <rect x="550" y="150" width="200" height="80" rx="8" fill="#9C27B0" class="interactive-element"/>
+              <rect x="560" y="160" width="40" height="20" rx="4" fill="rgba(255,255,255,0.3)"/>
+              <text x="580" y="175" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GET</text>
+              <text x="650" y="185" text-anchor="middle" fill="white" font-weight="bold">/region/:region</text>
+              <text x="650" y="210" text-anchor="middle" fill="white" font-size="12">Par région</text>
               <title>Filtre par continent (ex: 'europe')</title>
             </g>
             
-            <!-- Response -->
-            <g class="response-box animate-pulse-2" transform="translate(0, 270)">
-              <rect x="200" y="50" width="400" height="130" rx="10" fill="#E8F5E9" stroke="#4CAF50" stroke-width="3" class="animate-glow"/>
-              <text x="400" y="80" text-anchor="middle" fill="#2E7D32" font-weight="bold" font-size="16">
-                📦 Réponse JSON
-              </text>
-              <text x="400" y="110" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
-                [{{ '{' }} name: {{ '{' }} common: "France" {{ '}' }},
-              </text>
-              <text x="400" y="135" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
-                population: 67391582,
-              </text>
-              <text x="400" y="160" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
-                flags: {{ '{' }} png: "url..." {{ '}' }} {{ '}' }}]
-              </text>
+            <!-- Arrows to Response -->
+            <g class="animate-scale" style="animation-delay: 3s;">
+              <line x1="150" y1="230" x2="350" y2="300" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)" class="animate-flow"/>
+              <line x1="400" y1="230" x2="400" y2="300" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" class="animate-flow"/>
+              <line x1="650" y1="230" x2="450" y2="300" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrow-purple)" class="animate-flow"/>
             </g>
             
-            <!-- Arrows & Data Flow -->
-            <path id="path1" d="M150,190 L350,320" stroke="none" fill="none"/>
-            <path id="path2" d="M400,190 L400,320" stroke="none" fill="none"/>
-            <path id="path3" d="M650,190 L450,320" stroke="none" fill="none"/>
+            <!-- Response -->
+            <g class="response-box animate-scale" style="animation-delay: 3.5s;">
+              <rect x="175" y="300" width="500" height="140" rx="10" fill="#E8F5E9" stroke="#4CAF50" stroke-width="3" class="animate-glow"/>
+              <text x="425" y="330" text-anchor="middle" fill="#2E7D32" font-weight="bold" font-size="16">
+                📦 Réponse JSON
+              </text>
+              <text x="425" y="360" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
+                [&#123; name: &#123; common: "France" &#125;,
+              </text>
+              <text x="425" y="385" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
+                population: 67391582,
+              </text>
+              <text x="425" y="410" text-anchor="middle" fill="#333" font-size="13" font-family="monospace">
+                flags: &#123; png: "url..." &#125; &#125;]
+              </text>
+            </g>
 
-            <line x1="150" y1="190" x2="350" y2="320" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)" class="animate-draw"/>
-            <circle r="5" fill="#4CAF50" class="data-packet" style="offset-path: path('M150,190 L350,320'); animation-delay: 2s;"/>
+            <!-- Data Packets - start after elements appear -->
+            <circle r="6" fill="#4CAF50" stroke="#fff" stroke-width="1">
+              <animateMotion path="M150,230 L350,300" dur="3s" repeatCount="indefinite" begin="4s" calcMode="linear"/>
+              <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="4s"/>
+            </circle>
             
-            <line x1="400" y1="190" x2="400" y2="320" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" class="animate-draw"/>
-            <circle r="5" fill="#FF9800" class="data-packet" style="offset-path: path('M400,190 L400,320'); animation-delay: 2.5s;"/>
+            <circle r="6" fill="#FF9800" stroke="#fff" stroke-width="1">
+              <animateMotion path="M400,230 L400,300" dur="3s" repeatCount="indefinite" begin="4.5s" calcMode="linear"/>
+              <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="4.5s"/>
+            </circle>
             
-            <line x1="650" y1="190" x2="450" y2="320" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrow-purple)" class="animate-draw"/>
-            <circle r="5" fill="#9C27B0" class="data-packet" style="offset-path: path('M650,190 L450,320'); animation-delay: 3s;"/>
+            <circle r="6" fill="#9C27B0" stroke="#fff" stroke-width="1">
+              <animateMotion path="M650,230 L450,300" dur="3s" repeatCount="indefinite" begin="5s" calcMode="linear"/>
+              <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="5s"/>
+            </circle>
+            
+            <!-- Info Box inside SVG -->
+            <g class="animate-scale" style="animation-delay: 4s;">
+              <rect x="175" y="455" width="500" height="55" rx="8" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+              <text x="425" y="480" text-anchor="middle" fill="#1565C0" font-weight="bold" font-size="13">
+                💡 Path Parameters: La valeur est dans l'URL (/name/france)
+              </text>
+              <text x="425" y="500" text-anchor="middle" fill="#333" font-size="11">
+                Pas besoin de HttpParams - interpolation directe dans l'URL
+              </text>
+            </g>
             
             <defs>
               <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -102,6 +129,9 @@
               </marker>
               <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
                 <polygon points="0 0, 10 3, 0 6" fill="#9C27B0" />
+              </marker>
+              <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#3F51B5" />
               </marker>
             </defs>
           </svg>

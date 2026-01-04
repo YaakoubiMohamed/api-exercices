@@ -22,83 +22,122 @@
     <!-- Step 1: API with Query Parameters -->
     @if (currentStep() === 1) {
       <section class="step-content fade-in">
-        <h2>🔗 API avec Paramètres de Requête</h2>
+        <h2>🔗 API avec Query Parameters (Paramètres de Requête)</h2>
         
         <div class="visual-diagram">
-          <svg viewBox="0 0 900 450" class="api-params-diagram">
+          <svg viewBox="0 0 950 500" class="api-params-diagram">
             <!-- Base URL -->
-            <g class="url-segment animate-float">
-              <rect x="50" y="50" width="280" height="60" rx="10" fill="#3F51B5" class="interactive-element"/>
-              <text x="190" y="90" text-anchor="middle" fill="white" font-size="16" font-weight="bold">
+            <g class="url-segment animate-scale" style="animation-delay: 0.5s;">
+              <rect x="50" y="40" width="280" height="60" rx="10" fill="#3F51B5" class="interactive-element"/>
+              <text x="190" y="80" text-anchor="middle" fill="white" font-size="16" font-weight="bold">
                 https://randomuser.me/api
               </text>
               <title>URL de base de l'API</title>
             </g>
             
             <!-- Question Mark -->
-            <text x="350" y="90" text-anchor="middle" fill="#FF9800" font-size="40" font-weight="bold" class="animate-pulse-1">?</text>
+            <g class="animate-scale" style="animation-delay: 1s;">
+              <text x="355" y="80" text-anchor="middle" fill="#FF9800" font-size="40" font-weight="bold">?</text>
+            </g>
             
             <!-- Parameter 1: results -->
-            <g class="param-box animate-scale" style="animation-delay: 0.2s;">
-              <rect x="380" y="50" width="150" height="60" rx="8" fill="#4CAF50" class="interactive-element"/>
-              <text x="455" y="75" text-anchor="middle" fill="white" font-size="14" font-weight="bold">results=10</text>
-              <text x="455" y="95" text-anchor="middle" fill="white" font-size="11">Nombre d'users</text>
+            <g class="param-box animate-scale" style="animation-delay: 1.5s;">
+              <rect x="390" y="40" width="160" height="60" rx="8" fill="#4CAF50" class="interactive-element"/>
+              <text x="470" y="65" text-anchor="middle" fill="white" font-size="14" font-weight="bold">results=10</text>
+              <text x="470" y="85" text-anchor="middle" fill="white" font-size="11">Nombre d'users</text>
               <title>Paramètre pour limiter le nombre de résultats</title>
             </g>
             
             <!-- Ampersand -->
-            <text x="550" y="90" text-anchor="middle" fill="#FF9800" font-size="30" font-weight="bold" class="animate-pulse-2">&</text>
+            <g class="animate-scale" style="animation-delay: 2s;">
+              <text x="575" y="80" text-anchor="middle" fill="#FF9800" font-size="30" font-weight="bold">&amp;</text>
+            </g>
             
             <!-- Parameter 2: gender -->
-            <g class="param-box animate-scale" style="animation-delay: 0.4s;">
-              <rect x="580" y="50" width="150" height="60" rx="8" fill="#9C27B0" class="interactive-element"/>
-              <text x="655" y="75" text-anchor="middle" fill="white" font-size="14" font-weight="bold">gender=male</text>
-              <text x="655" y="95" text-anchor="middle" fill="white" font-size="11">Filtre genre</text>
+            <g class="param-box animate-scale" style="animation-delay: 2.5s;">
+              <rect x="600" y="40" width="160" height="60" rx="8" fill="#9C27B0" class="interactive-element"/>
+              <text x="680" y="65" text-anchor="middle" fill="white" font-size="14" font-weight="bold">gender=male</text>
+              <text x="680" y="85" text-anchor="middle" fill="white" font-size="11">Filtre genre</text>
               <title>Paramètre pour filtrer par genre</title>
             </g>
             
-            <!-- Arrow down -->
-            <line x1="450" y1="110" x2="450" y2="180" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow)" class="animate-flow"/>
+            <!-- More params hint -->
+            <g class="animate-scale" style="animation-delay: 3s;">
+              <text x="785" y="80" text-anchor="middle" fill="#FF9800" font-size="30" font-weight="bold">&amp;</text>
+              <rect x="810" y="40" width="100" height="60" rx="8" fill="#607D8B" stroke="#fff" stroke-dasharray="5 3" class="interactive-element"/>
+              <text x="860" y="75" text-anchor="middle" fill="white" font-size="12">+ params...</text>
+            </g>
             
-            <!-- Data Packet -->
-            <circle r="5" fill="#FF9800" class="data-packet">
-              <animateMotion path="M 450 110 L 450 180" dur="2s" repeatCount="indefinite" />
-            </circle>
+            <!-- Arrow down -->
+            <g class="animate-scale" style="animation-delay: 3.5s;">
+              <line x1="475" y1="100" x2="475" y2="160" stroke="#333" stroke-width="3" stroke-dasharray="10 5" marker-end="url(#arrow)"/>
+              <text x="510" y="135" fill="#333" font-size="11">HttpParams</text>
+            </g>
             
             <!-- HttpParams Box -->
-            <g class="code-box animate-scale" style="animation-delay: 0.6s;">
-              <rect x="200" y="180" width="500" height="180" rx="10" fill="#1e1e1e" stroke="#4CAF50" stroke-width="3" class="interactive-element"/>
-              <text x="450" y="210" text-anchor="middle" fill="#4CAF50" font-size="18" font-weight="bold">
-                Code avec HttpParams
+            <g class="code-box animate-scale" style="animation-delay: 4s;">
+              <rect x="175" y="160" width="600" height="180" rx="10" fill="#1e1e1e" stroke="#4CAF50" stroke-width="3" class="interactive-element"/>
+              <text x="475" y="190" text-anchor="middle" fill="#4CAF50" font-size="18" font-weight="bold">
+                💻 Code avec HttpParams
               </text>
               
-              <text x="220" y="245" fill="#d4d4d4" font-size="14" font-family="monospace">
-                const params = new HttpParams()
-              </text>
-              <text x="220" y="270" fill="#d4d4d4" font-size="14" font-family="monospace">
-                .set('results', '10')
-              </text>
-              <text x="220" y="295" fill="#d4d4d4" font-size="14" font-family="monospace">
-                .set('gender', 'male');
-              </text>
-              <text x="220" y="330" fill="#d4d4d4" font-size="14" font-family="monospace">
-                this.http.get(url, &#123; params &#125;)
-              </text>
+              <text x="195" y="225" fill="#569cd6" font-size="14" font-family="monospace">const</text>
+              <text x="245" y="225" fill="#d4d4d4" font-size="14" font-family="monospace">params =</text>
+              <text x="340" y="225" fill="#4ec9b0" font-size="14" font-family="monospace">new HttpParams()</text>
+              
+              <text x="220" y="255" fill="#d4d4d4" font-size="14" font-family="monospace">.set(</text>
+              <text x="265" y="255" fill="#ce9178" font-size="14" font-family="monospace">'results'</text>
+              <text x="340" y="255" fill="#d4d4d4" font-size="14" font-family="monospace">,</text>
+              <text x="360" y="255" fill="#ce9178" font-size="14" font-family="monospace">'10'</text>
+              <text x="395" y="255" fill="#d4d4d4" font-size="14" font-family="monospace">)</text>
+              
+              <text x="220" y="285" fill="#d4d4d4" font-size="14" font-family="monospace">.set(</text>
+              <text x="265" y="285" fill="#ce9178" font-size="14" font-family="monospace">'gender'</text>
+              <text x="340" y="285" fill="#d4d4d4" font-size="14" font-family="monospace">,</text>
+              <text x="360" y="285" fill="#ce9178" font-size="14" font-family="monospace">'male'</text>
+              <text x="415" y="285" fill="#d4d4d4" font-size="14" font-family="monospace">);</text>
+              
+              <text x="195" y="320" fill="#569cd6" font-size="14" font-family="monospace">this</text>
+              <text x="225" y="320" fill="#d4d4d4" font-size="14" font-family="monospace">.http.get(url, &#123;</text>
+              <text x="385" y="320" fill="#9cdcfe" font-size="14" font-family="monospace">params</text>
+              <text x="445" y="320" fill="#d4d4d4" font-size="14" font-family="monospace">&#125;)</text>
               <title>Construction des paramètres avec HttpParams</title>
             </g>
             
+            <!-- Arrow to result -->
+            <g class="animate-scale" style="animation-delay: 4.5s;">
+              <line x1="475" y1="340" x2="475" y2="380" stroke="#4CAF50" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrow-green)"/>
+            </g>
+            
             <!-- Result -->
-            <g class="result-box animate-scale" style="animation-delay: 0.8s;">
-              <rect x="150" y="380" width="600" height="50" rx="8" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2" class="interactive-element"/>
-              <text x="450" y="412" text-anchor="middle" fill="#2E7D32" font-size="15" font-weight="bold">
-                ✅ URL finale: https://randomuser.me/api?results=10&gender=male
+            <g class="result-box animate-scale" style="animation-delay: 5s;">
+              <rect x="100" y="380" width="750" height="55" rx="8" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2" class="interactive-element"/>
+              <text x="475" y="415" text-anchor="middle" fill="#2E7D32" font-size="15" font-weight="bold">
+                ✅ URL finale: https://randomuser.me/api?results=10&amp;gender=male
               </text>
               <title>L'URL générée automatiquement</title>
             </g>
             
+            <!-- Info box -->
+            <g class="animate-scale" style="animation-delay: 5.5s;">
+              <rect x="100" y="445" width="750" height="50" rx="8" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+              <text x="475" y="475" text-anchor="middle" fill="#1565C0" font-weight="bold" font-size="13">
+                💡 Query Params: Après le "?" - Utilisez HttpParams pour construire l'URL proprement
+              </text>
+            </g>
+            
+            <!-- Data Packet Animation - starts after all elements shown -->
+            <circle r="6" fill="#FFD700" stroke="#333" stroke-width="1">
+              <animateMotion path="M475,100 L475,160 L475,340 L475,380" dur="6s" repeatCount="indefinite" begin="6s" calcMode="linear"/>
+              <animate attributeName="opacity" values="0;1;1;1;0" dur="6s" repeatCount="indefinite" begin="6s"/>
+            </circle>
+            
             <defs>
               <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
                 <polygon points="0 0, 10 3, 0 6" fill="#333" />
+              </marker>
+              <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#4CAF50" />
               </marker>
             </defs>
           </svg>
@@ -107,7 +146,7 @@
         <div class="info-box">
           <h3>🔑 HttpParams</h3>
           <ul>
-            <li>✅ <strong>Type-safe</strong> : Evite les erreurs de typage dans l'URL</li>
+            <li>✅ <strong>Type-safe</strong> : Évite les erreurs de typage dans l'URL</li>
             <li>✅ <strong>Immutable</strong> : Chaque .set() retourne un nouvel objet</li>
             <li>✅ <strong>Encodage auto</strong> : Gère les espaces et caractères spéciaux</li>
           </ul>
